@@ -1,9 +1,9 @@
 from gi.repository import Gtk
 
-from ..application import window, input_alg
+from ..application import input_alg
 
 
-def save_as(widget):
+def save_as(parent):
 
     def add_filters(dialog):
         filter_text = Gtk.FileFilter()
@@ -22,7 +22,7 @@ def save_as(widget):
         dialog.add_filter(filter_any)
 
     dialog = Gtk.FileChooserDialog(
-        'Please choose a file', window, Gtk.FileChooserAction.OPEN,
+        'Please choose a file', parent, Gtk.FileChooserAction.OPEN,
         (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
          Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 

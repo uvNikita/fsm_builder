@@ -2,44 +2,63 @@ from functools import wraps
 
 from gi.repository import Gtk
 
-from ..application import id_input, input_alg, id_chooser
-from ..model.input import Condition, JumpTo, JumpFrom, Control, End
+from ..application import input_alg, builder
+from ..model.input import Condition, JumpTo, JumpFrom, Control, End, ControlBlock
 
 
-def with_id_chooser(handler):
+id_chooser = builder.get_object('id_chooser')
+id_input = builder.get_object('id_input')
+
+control_dialog = builder.get_object('control_dialog')
+control_input = builder.get_object('control_input')
+
+
+def with_indexchooser(handler):
     @wraps(handler)
     def wrapper(*args, **kwargs):
         response = id_chooser.run()
         if response:
-            id_ = id_input.get_value_as_int()
-            kwargs.update(id_=id_)
+            index = id_input.get_value_as_int()
+            kwargs.update(index=index)
             handler(*args, **kwargs)
         id_input.set_value(0)
         id_chooser.hide()
     return wrapper
 
 
-@with_id_chooser
-def add_cond(widget, id_):
-    input_alg.append(Condition(id_))
+@with_indexchooser
+def add_cond(widget, index):
+    input_alg.append(Condition(index))
     input_alg.draw()
 
 
-@with_id_chooser
-def add_control(widget, id_):
-    input_alg.append(Control(id_))
+def add_control(widget):
+    response = control_dialog.run()
+    try:
+        if response:
+            ids = control_input.get_text().split(',')
+            ids = list(map(int, ids))
+            if len(ids) == 1:
+                input_alg.append(Control(ids[0]))
+            else:
+                input_alg.append(ControlBlock(ids))
+    except ValueError as e:
+        print(e)
+    finally:
+        control_input.set_text('')
+        control_dialog.hide()
+        input_alg.draw()
+
+
+@with_indexchooser
+def add_jump_from(widget, index):
+    input_alg.append(JumpFrom(index))
     input_alg.draw()
 
 
-@with_id_chooser
-def add_jump_from(widget, id_):
-    input_alg.append(JumpFrom(id_))
-    input_alg.draw()
-
-
-@with_id_chooser
-def add_jump_to(widget, id_):
-    input_alg.append(JumpTo(id_))
+@with_indexchooser
+def add_jump_to(widget, index):
+    input_alg.append(JumpTo(index))
     input_alg.draw()
 
 
