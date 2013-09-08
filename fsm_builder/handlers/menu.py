@@ -1,6 +1,6 @@
 from gi.repository import Gtk
 
-from ..application import window
+from ..application import window, input_alg
 
 
 def save_as(widget):
@@ -38,6 +38,12 @@ def save_as(widget):
     dialog.destroy()
 
 
+def new(widget):
+    input_alg.new()
+    input_alg.draw()
+
+
 menu_handlers = {
-    'save_as': save_as
+    'menu_save_as': save_as,
+    'menu_new': new,
 }

@@ -113,26 +113,27 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkMenuItem" id="menuitem1">
+              <object class="GtkMenuItem" id="menuitem_File">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">_File</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
-                  <object class="GtkMenu" id="menu1">
+                  <object class="GtkMenu" id="menu_File">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem1">
+                      <object class="GtkImageMenuItem" id="file_new">
                         <property name="label">gtk-new</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="menu_new" swapped="no"/>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem2">
+                      <object class="GtkImageMenuItem" id="file_open">
                         <property name="label">gtk-open</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -141,7 +142,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem3">
+                      <object class="GtkImageMenuItem" id="file_save">
                         <property name="label">gtk-save</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -150,13 +151,13 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem4">
+                      <object class="GtkImageMenuItem" id="file_save_as">
                         <property name="label">gtk-save-as</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="save_as" swapped="no"/>
+                        <signal name="activate" handler="menu_save_as" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -283,7 +284,7 @@
                     <property name="tooltip_text" translatable="yes">Jump from</property>
                     <property name="use_underline">True</property>
                     <property name="icon_name">view-sort-descending</property>
-                    <signal name="clicked" handler="add_jump_from" object="alg_label" swapped="no"/>
+                    <signal name="clicked" handler="add_jump_from" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -297,7 +298,7 @@
                     <property name="tooltip_text" translatable="yes">Jump to</property>
                     <property name="use_underline">True</property>
                     <property name="icon_name">view-sort-ascending</property>
-                    <signal name="clicked" handler="add_jump_to" object="alg_label" swapped="no"/>
+                    <signal name="clicked" handler="add_jump_to" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -311,7 +312,7 @@
                     <property name="tooltip_text" translatable="yes">Condition</property>
                     <property name="label" translatable="yes">X</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="add_cond" object="alg_label" swapped="no"/>
+                    <signal name="clicked" handler="add_cond" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -319,13 +320,13 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToolButton" id="node">
+                  <object class="GtkToolButton" id="control">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="tooltip_text" translatable="yes">Node</property>
+                    <property name="tooltip_text" translatable="yes">Control</property>
                     <property name="label" translatable="yes">Y</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="add_node" object="alg_label" swapped="no"/>
+                    <signal name="clicked" handler="add_control" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -339,7 +340,7 @@
                     <property name="tooltip_text" translatable="yes">End</property>
                     <property name="label" translatable="yes">End</property>
                     <property name="use_underline">True</property>
-                    <signal name="clicked" handler="add_end" object="alg_label" swapped="no"/>
+                    <signal name="clicked" handler="add_end" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -363,7 +364,6 @@
                 <attributes>
                   <attribute name="font-desc" value="&lt;Enter Value&gt; 15"/>
                 </attributes>
-                <signal name="show" handler="show_alg_label" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>

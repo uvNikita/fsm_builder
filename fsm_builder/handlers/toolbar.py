@@ -3,7 +3,7 @@ from functools import wraps
 from gi.repository import Gtk
 
 from ..application import id_input, input_alg, id_chooser
-from ..model.input import Condition, JumpTo, JumpFrom, Node, End
+from ..model.input import Condition, JumpTo, JumpFrom, Control, End
 
 
 def with_id_chooser(handler):
@@ -20,37 +20,37 @@ def with_id_chooser(handler):
 
 
 @with_id_chooser
-def add_cond(dest, id_):
+def add_cond(widget, id_):
     input_alg.append(Condition(id_))
-    dest.emit('show')
+    input_alg.draw()
 
 
 @with_id_chooser
-def add_node(dest, id_):
-    input_alg.append(Node(id_))
-    dest.emit('show')
+def add_control(widget, id_):
+    input_alg.append(Control(id_))
+    input_alg.draw()
 
 
 @with_id_chooser
-def add_jump_from(dest, id_):
+def add_jump_from(widget, id_):
     input_alg.append(JumpFrom(id_))
-    dest.emit('show')
+    input_alg.draw()
 
 
 @with_id_chooser
-def add_jump_to(dest, id_):
+def add_jump_to(widget, id_):
     input_alg.append(JumpTo(id_))
-    dest.emit('show')
+    input_alg.draw()
 
 
-def add_end(dest):
+def add_end(widget):
     input_alg.append(End())
-    dest.emit('show')
+    input_alg.draw()
 
 
 toolbar_handlers = {
     'add_cond': add_cond,
-    'add_node': add_node,
+    'add_control': add_control,
     'add_jump_from': add_jump_from,
     'add_jump_to': add_jump_to,
     'add_end': add_end,

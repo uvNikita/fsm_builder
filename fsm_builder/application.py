@@ -3,7 +3,7 @@ import os
 
 from gi.repository import Gtk
 
-input_alg = []
+from .model.input import InputAlg
 
 builder = Gtk.Builder()
 builder.add_from_file('gui.glade')
@@ -15,3 +15,6 @@ gui_file = os.path.join(os.path.dirname(module),
 window = builder.get_object('window')
 id_chooser = builder.get_object('id_chooser')
 id_input = builder.get_object('id_input')
+
+alg_holder = builder.get_object('alg_label')
+input_alg = InputAlg(alg_holder)
