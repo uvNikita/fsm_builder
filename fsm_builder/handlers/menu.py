@@ -43,7 +43,13 @@ def new(widget):
     input_alg.draw()
 
 
+def about(aboutdialog):
+    aboutdialog.run()
+    aboutdialog.hide()
+
+
 menu_handlers = {
     'menu_save_as': save_as,
     'menu_new': new,
+    'menu_about': about,
 }
