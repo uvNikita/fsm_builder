@@ -1,6 +1,7 @@
 from gi.repository import Gtk
 
 from ..application import input_alg
+from ..model.converters import input_to_chart
 
 
 def save_as(parent):
@@ -48,8 +49,13 @@ def about(aboutdialog):
     aboutdialog.hide()
 
 
+def analize(widget):
+    chart = input_to_chart(input_alg)
+
+
 menu_handlers = {
     'menu_save_as': save_as,
     'menu_new': new,
     'menu_about': about,
+    'menu_analize': analize,
 }

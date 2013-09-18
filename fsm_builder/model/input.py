@@ -66,5 +66,11 @@ class InputAlg(object):
     def draw(self):
         self.holder.set_text(str(self))
 
+    def __iter__(self):
+        return iter(self.alg)
+
+    def __getitem__(self, item):
+        return self.alg[item]
+
     def __repr__(self):
         return ''.join(map(str, self.alg))
