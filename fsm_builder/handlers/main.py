@@ -1,12 +1,12 @@
 import os
 
 from gi.repository import Gtk
-from ..application import chart_file
+from ..application import files
 
 
 def main_quit(*args):
-    if os.path.isfile(chart_file):
-        os.remove(chart_file)
+    if os.path.isfile(files['chart_file']):
+        os.remove(files['chart_file'])
     Gtk.main_quit(*args)
 
 

@@ -17,7 +17,10 @@ builder.add_from_file(gui_file)
 alg_holder = builder.get_object('alg_label')
 input_alg = InputAlg(alg_holder)
 
-chart_file = mktemp('.png', 'fsm_chart_', '/tmp/')
+files = {
+    'data_file': None,
+    'chart_file': mktemp('.png', 'fsm_chart_', '/tmp/')
+}
 
 
 def draw_chart(chart):
@@ -35,5 +38,5 @@ def draw_chart(chart):
         elif isinstance(block, Condition):
             G.add_edge(pydot.Edge(str(block), str(block.true_block), label='True'))
             G.add_edge(pydot.Edge(str(block), str(block.false_block), label='False'))
-    G.write_png(chart_file)
+    G.write_png(files['chart_file'])
 

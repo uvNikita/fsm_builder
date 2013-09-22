@@ -1,7 +1,7 @@
 import pickle
 from gi.repository import Gtk
 
-from ..application import builder, input_alg, draw_chart, chart_file
+from ..application import builder, input_alg, draw_chart, files
 from ..model.converters import input_to_chart, chart_to_tables, ParseError
 
 
@@ -33,7 +33,17 @@ def save_as(widget):
             path += '.fsmd'
         with open(path, 'wb') as f:
             pickle.dump(input_alg.alg, f)
+            files['data_file'] = path
     dialog.destroy()
+
+
+def save(widget):
+    print(files['data_file'])
+    if files['data_file'] is None:
+        return save_as(widget)
+    else:
+        with open(files['data_file'], 'wb') as f:
+            pickle.dump(input_alg.alg, f)
 
 
 def open_file(widget):
@@ -49,6 +59,7 @@ def open_file(widget):
         path = dialog.get_filename()
         with open(path, 'rb') as f:
             loaded_alg = pickle.load(f)
+            files['data_file'] = path
         input_alg.alg = loaded_alg
         input_alg.draw()
     dialog.destroy()
@@ -81,7 +92,7 @@ def analize(widget):
         return
     draw_chart(chart)
     chart_view = builder.get_object('chart')
-    chart_view.set_from_file(chart_file)
+    chart_view.set_from_file(files['chart_file'])
 
     def_table, con_table = chart_to_tables(chart)
     con_table_buffer = builder.get_object('con_table_buffer')
@@ -93,6 +104,7 @@ def analize(widget):
 
 menu_handlers = {
     'menu_save_as': save_as,
+    'menu_save': save,
     'menu_open': open_file,
     'menu_new': new,
     'menu_about': about,
