@@ -1,41 +1,56 @@
+import pickle
 from gi.repository import Gtk
 
 from ..application import builder, input_alg, draw_chart, chart_file
 from ..model.converters import input_to_chart, chart_to_tables
 
 
-def save_as(parent):
+def add_filters(dialog):
+    filter_text = Gtk.FileFilter()
+    filter_text.set_name('FSM Builder files')
+    filter_text.add_mime_type('application/octet-stream')
+    dialog.add_filter(filter_text)
 
-    def add_filters(dialog):
-        filter_text = Gtk.FileFilter()
-        filter_text.set_name('Text files')
-        filter_text.add_mime_type('text/plain')
-        dialog.add_filter(filter_text)
+    filter_any = Gtk.FileFilter()
+    filter_any.set_name('Any files')
+    filter_any.add_pattern('*')
+    dialog.add_filter(filter_any)
 
-        filter_py = Gtk.FileFilter()
-        filter_py.set_name('Python files')
-        filter_py.add_mime_type('text/x-python')
-        dialog.add_filter(filter_py)
 
-        filter_any = Gtk.FileFilter()
-        filter_any.set_name('Any files')
-        filter_any.add_pattern('*')
-        dialog.add_filter(filter_any)
-
+def save_as(widget):
+    parent = builder.get_object('window')
     dialog = Gtk.FileChooserDialog(
-        'Please choose a file', parent, Gtk.FileChooserAction.OPEN,
+        'Please choose a file to save', parent, Gtk.FileChooserAction.SAVE,
         (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-         Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+         Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
 
     add_filters(dialog)
 
     response = dialog.run()
     if response == Gtk.ResponseType.OK:
-        print("Open clicked")
-        print("File selected: " + dialog.get_filename())
-    elif response == Gtk.ResponseType.CANCEL:
-        print("Cancel clicked")
+        path = dialog.get_filename()
+        if not path.endswith('.fsmd'):
+            path += '.fsmd'
+        with open(path, 'wb') as f:
+            pickle.dump(input_alg.alg, f)
+    dialog.destroy()
 
+
+def open_file(widget):
+    parent = builder.get_object('window')
+    dialog = Gtk.FileChooserDialog(
+        'Please choose a file to save', parent, Gtk.FileChooserAction.OPEN,
+        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+         Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+    add_filters(dialog)
+
+    response = dialog.run()
+    if response == Gtk.ResponseType.OK:
+        path = dialog.get_filename()
+        with open(path, 'rb') as f:
+            loaded_alg = pickle.load(f)
+        input_alg.alg = loaded_alg
+        input_alg.draw()
     dialog.destroy()
 
 
@@ -72,6 +87,7 @@ def analize(widget):
 
 menu_handlers = {
     'menu_save_as': save_as,
+    'menu_open': open_file,
     'menu_new': new,
     'menu_about': about,
     'menu_analize': analize,

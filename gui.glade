@@ -223,11 +223,6 @@
       <action-widget response="1">id_ok</action-widget>
     </action-widgets>
   </object>
-  <object class="GtkImage" id="image1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-missing-image</property>
-  </object>
   <object class="GtkWindow" id="window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Finite-State Machine Builder</property>
@@ -271,6 +266,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="menu_open" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -289,7 +285,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="menu_save_as" object="window" swapped="no"/>
+                        <signal name="activate" handler="menu_save_as" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -359,12 +355,11 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="analize">
-                        <property name="label" translatable="yes">Analize</property>
+                      <object class="GtkMenuItem" id="analize">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="image">image1</property>
-                        <property name="use_stock">False</property>
+                        <property name="label" translatable="yes">Analize</property>
+                        <property name="use_underline">True</property>
                         <signal name="activate" handler="menu_analize" swapped="no"/>
                       </object>
                     </child>
