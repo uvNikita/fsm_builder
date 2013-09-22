@@ -76,6 +76,8 @@ def analize(widget):
         chart = input_to_chart(input_alg)
     except ParseError as e:
         input_alg.draw(errors=[e.idx])
+        statusbar = builder.get_object('statusbar')
+        statusbar.push(1, str(e))
         return
     draw_chart(chart)
     chart_view = builder.get_object('chart')
