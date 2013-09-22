@@ -67,10 +67,16 @@ def add_end(widget):
     input_alg.draw()
 
 
+def del_last(widget):
+    input_alg.pop()
+    input_alg.draw()
+
+
 toolbar_handlers = {
     'add_cond': add_cond,
     'add_control': add_control,
     'add_jump_from': add_jump_from,
     'add_jump_to': add_jump_to,
     'add_end': add_end,
+    'del_last': del_last,
 }

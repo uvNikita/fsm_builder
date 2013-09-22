@@ -60,6 +60,10 @@ class InputAlg(object):
     def append(self, action):
         self.alg.append(action)
 
+    def pop(self, *args, **kwargs):
+        if len(self.alg) > 1:
+            return self.alg.pop(*args, **kwargs)
+
     def new(self):
         self.alg = [Begin()]
 
