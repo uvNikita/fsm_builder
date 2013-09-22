@@ -33,6 +33,8 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
             block = chart.Block(block_id)
             blocks[curr] = block
             block_id += 1
+            if len(input_alg) < curr + 2:
+                raise ParseError(curr, "Unexpected end of input")
             block.next_block = parse(curr + 1)
         elif isinstance(curr_action, input.End):
             block = chart.Block(block_id)
