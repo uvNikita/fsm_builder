@@ -1,6 +1,6 @@
 from gi.repository import Gtk
 
-from ..application import input_alg
+from ..application import builder, input_alg, draw_chart, chart_file
 from ..model.converters import input_to_chart
 
 
@@ -51,6 +51,9 @@ def about(aboutdialog):
 
 def analize(widget):
     chart = input_to_chart(input_alg)
+    draw_chart(chart)
+    chart_view = builder.get_object('chart')
+    chart_view.set_from_file(chart_file)
 
 
 menu_handlers = {

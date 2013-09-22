@@ -36,7 +36,7 @@ def add_control(widget):
     response = control_dialog.run()
     try:
         if response:
-            ids = control_input.get_text().split(',')
+            ids = control_input.get_text().split(' ')
             ids = list(map(int, ids))
             if len(ids) == 1:
                 input_alg.append(Control(ids[0]))

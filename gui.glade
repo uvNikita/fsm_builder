@@ -103,7 +103,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="invisible_char">●</property>
-                <property name="placeholder_text">1,2,3</property>
+                <property name="placeholder_text">1 2 3</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -537,7 +537,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkDrawingArea" id="drawingarea1">
+                  <object class="GtkImage" id="chart">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                   </object>
