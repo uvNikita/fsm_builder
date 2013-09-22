@@ -3,6 +3,12 @@ import fsm_builder.model.chart as chart
 import fsm_builder.model.input as input
 
 
+class ParseError(Exception):
+    def __init__(self, idx=None, *args, **kwargs):
+        super(ParseError, self).__init__(*args, **kwargs)
+        self.idx = idx
+
+
 def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
     """
     Converts algorithm from input to chart type
@@ -36,23 +42,37 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
             block = chart.Condition(block_id, curr_action.index)
             blocks[curr] = block
             block_id += 1
+            if len(input_alg) < curr + 3:
+                raise ParseError(curr, "Unexpected end of input")
             jump_id = input_alg[curr + 1].index
+            if jump_id not in jump_to:
+                raise ParseError(curr + 1, "Do not know where to jump")
+            if len(input_alg) < jump_to[jump_id] + 1:
+                raise ParseError(jump_to[jump_id] - 1, "Do not know where to jump")
             block.true_block = parse(jump_to[jump_id])
             block.false_block = parse(curr + 2)
         elif isinstance(curr_action, input.Control):
             block = chart.Block(block_id, controls=[curr_action.index])
             blocks[curr] = block
             block_id += 1
+            if len(input_alg) < curr + 2:
+                raise ParseError(curr, "Unexpected end of input")
             block.next_block = parse(curr + 1)
         elif isinstance(curr_action, input.ControlBlock):
             controls = [control.index for control in curr_action.controls]
             block = chart.Block(block_id, controls=controls)
             blocks[curr] = block
             block_id += 1
+            if len(input_alg) < curr + 3:
+                raise ParseError(curr, "Unexpected end of input")
             block.next_block = parse(curr + 1)
         elif isinstance(curr_action, input.JumpFrom):
+            if curr_action.index not in jump_to:
+                raise ParseError(curr_action.index, "Do not know where to jump")
             return parse(jump_to[curr_action.index])
         elif isinstance(curr_action, input.JumpTo):
+            if len(input_alg) < curr + 2:
+                raise ParseError(curr, "Unexpected end of input")
             return parse(curr + 1)
 
         if not block:

@@ -67,14 +67,23 @@ class InputAlg(object):
     def new(self):
         self.alg = [Begin()]
 
-    def draw(self):
-        self.holder.set_text(str(self))
+    def draw(self, *, errors=()):
+        res = ''
+        for idx, action in enumerate(self.alg):
+            action_str = str(action)
+            if idx in errors:
+                action_str = "<span foreground='red'>{}</span>".format(action_str)
+            res += action_str
+        self.holder.set_markup(res)
 
     def __iter__(self):
         return iter(self.alg)
 
     def __getitem__(self, item):
         return self.alg[item]
+
+    def __len__(self):
+        return len(self.alg)
 
     def __repr__(self):
         return ''.join(map(str, self.alg))
