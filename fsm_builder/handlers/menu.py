@@ -1,7 +1,7 @@
 from gi.repository import Gtk
 
 from ..application import builder, input_alg, draw_chart, chart_file
-from ..model.converters import input_to_chart
+from ..model.converters import input_to_chart, chart_to_tables
 
 
 def save_as(parent):
@@ -49,11 +49,25 @@ def about(aboutdialog):
     aboutdialog.hide()
 
 
+def dict_to_str(dct):
+    res = ''
+    for fr, tos in dct.items():
+        res += '{}: {}\n'.format(fr, ' '.join(map(str, tos)))
+    return res
+
+
 def analize(widget):
     chart = input_to_chart(input_alg)
     draw_chart(chart)
     chart_view = builder.get_object('chart')
     chart_view.set_from_file(chart_file)
+
+    def_table, con_table = chart_to_tables(chart)
+    con_table_buffer = builder.get_object('con_table_buffer')
+    con_table_buffer.set_text(dict_to_str(con_table))
+
+    def_table_buffer = builder.get_object('def_table_buffer')
+    def_table_buffer.set_text(dict_to_str(def_table))
 
 
 menu_handlers = {

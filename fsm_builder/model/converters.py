@@ -62,19 +62,27 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
     return parse(0)
 
 
-def chart_to_table(chart_alg: chart.Block) -> dict:
-    table = defaultdict(list)
+def chart_to_tables(chart_alg: chart.Block) -> dict:
+    con_table = defaultdict(list)
+    def_table = dict()
+
+    blocks = chart.get_blocks(chart_alg)
+    for idx, block in blocks.items():
+        if isinstance(block, chart.Block):
+            def_table[idx] = block.controls or '-'
+        elif isinstance(block, chart.Condition):
+            def_table[idx] = [block.cond]
 
     def parse(block):
-        if table.get(block.index):
+        if con_table.get(block.index):
             return
         if isinstance(block, chart.Block) and block.next_block:
-            table[block.index].append(block.next_block.index)
+            con_table[block.index].append(block.next_block.index)
             parse(block.next_block)
         elif isinstance(block, chart.Condition):
-            table[block.index].append(block.true_block.index)
+            con_table[block.index].append(block.true_block.index)
             parse(block.true_block)
-            table[block.index].append(block.false_block.index)
+            con_table[block.index].append(block.false_block.index)
             parse(block.false_block)
     parse(chart_alg)
-    return table
+    return def_table, dict(con_table)
