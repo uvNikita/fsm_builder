@@ -266,6 +266,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <accelerator key="o" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <signal name="activate" handler="menu_open" swapped="no"/>
                       </object>
                     </child>
@@ -285,6 +286,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <accelerator key="s" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <signal name="activate" handler="menu_save_as" swapped="no"/>
                       </object>
                     </child>
@@ -295,12 +297,13 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem5">
+                      <object class="GtkImageMenuItem" id="file_quit">
                         <property name="label">gtk-quit</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <accelerator key="q" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <signal name="activate" handler="main_quit" swapped="no"/>
                       </object>
                     </child>
@@ -360,6 +363,7 @@
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Analize</property>
                         <property name="use_underline">True</property>
+                        <accelerator key="a" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <signal name="activate" handler="menu_analize" swapped="no"/>
                       </object>
                     </child>
@@ -422,6 +426,7 @@
                     <property name="tooltip_text" translatable="yes">Jump from</property>
                     <property name="label" translatable="yes">↑</property>
                     <property name="use_underline">True</property>
+                    <accelerator key="Up" signal="clicked" modifiers="GDK_SHIFT_MASK"/>
                     <signal name="clicked" handler="add_jump_from" swapped="no"/>
                   </object>
                   <packing>
@@ -436,6 +441,7 @@
                     <property name="tooltip_text" translatable="yes">Jump to</property>
                     <property name="label" translatable="yes">↓</property>
                     <property name="use_underline">True</property>
+                    <accelerator key="Down" signal="clicked" modifiers="GDK_SHIFT_MASK"/>
                     <signal name="clicked" handler="add_jump_to" swapped="no"/>
                   </object>
                   <packing>
@@ -450,6 +456,7 @@
                     <property name="tooltip_text" translatable="yes">Condition</property>
                     <property name="label" translatable="yes">X</property>
                     <property name="use_underline">True</property>
+                    <accelerator key="x" signal="clicked" modifiers="GDK_SHIFT_MASK"/>
                     <signal name="clicked" handler="add_cond" swapped="no"/>
                   </object>
                   <packing>
@@ -464,6 +471,7 @@
                     <property name="tooltip_text" translatable="yes">Control</property>
                     <property name="label" translatable="yes">Y</property>
                     <property name="use_underline">True</property>
+                    <accelerator key="y" signal="clicked" modifiers="GDK_SHIFT_MASK"/>
                     <signal name="clicked" handler="add_control" swapped="no"/>
                   </object>
                   <packing>
@@ -478,6 +486,7 @@
                     <property name="tooltip_text" translatable="yes">End</property>
                     <property name="label" translatable="yes">End</property>
                     <property name="use_underline">True</property>
+                    <accelerator key="e" signal="clicked" modifiers="GDK_SHIFT_MASK"/>
                     <signal name="clicked" handler="add_end" swapped="no"/>
                   </object>
                   <packing>
@@ -492,6 +501,7 @@
                     <property name="tooltip_text" translatable="yes">Delete last input</property>
                     <property name="label" translatable="yes">del</property>
                     <property name="use_underline">True</property>
+                    <accelerator key="BackSpace" signal="clicked" modifiers="GDK_SHIFT_MASK"/>
                     <signal name="clicked" handler="del_last" swapped="no"/>
                   </object>
                   <packing>
