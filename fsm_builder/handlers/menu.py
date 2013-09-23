@@ -83,13 +83,14 @@ def dict_to_str(dct):
 
 
 def analize(widget):
+    statusbar = builder.get_object('statusbar')
     try:
         chart = input_to_chart(input_alg)
     except ParseError as e:
         input_alg.draw(errors=[e.idx])
-        statusbar = builder.get_object('statusbar')
         statusbar.push(1, str(e))
         return
+    statusbar.remove_all(1)
     draw_chart(chart)
     chart_view = builder.get_object('chart')
     chart_view.set_from_file(files['chart_file'])
