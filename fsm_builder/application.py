@@ -25,7 +25,7 @@ files = {
 
 def draw_chart(chart):
     blocks = get_blocks(chart)
-    G = pydot.Dot('graphname', graph_type='digraph', rankdir='TB', size=100)
+    G = pydot.Dot('alg_chart', graph_type='digraph', rankdir='TB', size=100)
     for block in blocks.values():
         if isinstance(block, Block):
             G.add_node(pydot.Node(str(block), shape='box'))

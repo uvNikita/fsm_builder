@@ -33,7 +33,7 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
             block = chart.Block(block_id)
             blocks[curr] = block
             block_id += 1
-            if len(input_alg) < curr + 2:
+            if not input_alg.has(curr + 1):
                 raise ParseError(curr, "Unexpected end of input")
             block.next_block = parse(curr + 1)
         elif isinstance(curr_action, input.End):
@@ -44,7 +44,7 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
             block = chart.Condition(block_id, curr_action.index)
             blocks[curr] = block
             block_id += 1
-            if len(input_alg) < curr + 3:
+            if not input_alg.has(curr + 2):
                 raise ParseError(curr, "Unexpected end of input")
             jump_id = input_alg[curr + 1].index
             if jump_id not in jump_to:
@@ -57,7 +57,7 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
             block = chart.Block(block_id, controls=[curr_action.index])
             blocks[curr] = block
             block_id += 1
-            if len(input_alg) < curr + 2:
+            if not input_alg.has(curr + 1):
                 raise ParseError(curr, "Unexpected end of input")
             block.next_block = parse(curr + 1)
         elif isinstance(curr_action, input.ControlBlock):
@@ -65,7 +65,7 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
             block = chart.Block(block_id, controls=controls)
             blocks[curr] = block
             block_id += 1
-            if len(input_alg) < curr + 3:
+            if not input_alg.has(curr + 1):
                 raise ParseError(curr, "Unexpected end of input")
             block.next_block = parse(curr + 1)
         elif isinstance(curr_action, input.JumpFrom):
@@ -73,7 +73,7 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
                 raise ParseError(curr_action.index, "Do not know where to jump")
             return parse(jump_to[curr_action.index])
         elif isinstance(curr_action, input.JumpTo):
-            if len(input_alg) < curr + 2:
+            if not input_alg.has(curr + 1):
                 raise ParseError(curr, "Unexpected end of input")
             return parse(curr + 1)
 

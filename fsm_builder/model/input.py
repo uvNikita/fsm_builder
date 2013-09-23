@@ -76,6 +76,9 @@ class InputAlg(object):
             res += action_str
         self.holder.set_markup(res)
 
+    def has(self, idx):
+        return idx < len(self.alg)
+
     def __iter__(self):
         return iter(self.alg)
 
