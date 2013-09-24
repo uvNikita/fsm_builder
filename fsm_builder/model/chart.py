@@ -41,3 +41,28 @@ def get_blocks(chart):
             parse(block.false_block)
     parse(chart)
     return blocks
+
+
+def get_paths(chart):
+    blocks = {}
+    paths = []
+    loops = []
+
+    def parse(block, path):
+        if block in path:
+            loops.append(path)
+            paths.append(path)
+            return
+        else:
+            path += [block]
+        if isinstance(block, Block):
+            if block.next_block:
+                parse(block.next_block, path[:])
+            else:
+                paths.append(path)
+        elif isinstance(block, Condition):
+            parse(block.true_block, path[:])
+            parse(block.false_block, path[:])
+
+    parse(chart, [])
+    return paths, loops

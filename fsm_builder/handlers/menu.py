@@ -2,6 +2,7 @@ import pickle
 from gi.repository import Gtk
 
 from ..application import builder, input_alg, draw_chart, files
+from ..model.chart import get_paths
 from ..model.converters import input_to_chart, chart_to_tables, ParseError
 
 
@@ -101,6 +102,10 @@ def analize(widget):
 
     def_table_buffer = builder.get_object('def_table_buffer')
     def_table_buffer.set_text(dict_to_str(def_table))
+
+    paths, loops = get_paths(chart)
+    print(paths)
+    print(loops)
 
 
 menu_handlers = {
