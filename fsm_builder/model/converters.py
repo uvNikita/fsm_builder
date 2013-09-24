@@ -22,8 +22,10 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
     blocks = {}
     block_id = 0
 
-    def parse(curr):
+    def parse(curr, prev):
         nonlocal block_id
+        if not input_alg.has(curr):
+            raise ParseError(prev, "Unexpected end of input")
         curr_action = input_alg[curr]
         if blocks.get(curr):
             return blocks[curr]
@@ -33,9 +35,7 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
             block = chart.Block(block_id)
             blocks[curr] = block
             block_id += 1
-            if not input_alg.has(curr + 1):
-                raise ParseError(curr, "Unexpected end of input")
-            block.next_block = parse(curr + 1)
+            block.next_block = parse(curr + 1, curr)
         elif isinstance(curr_action, input.End):
             block = chart.Block(block_id)
             blocks[curr] = block
@@ -44,44 +44,38 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
             block = chart.Condition(block_id, curr_action.index)
             blocks[curr] = block
             block_id += 1
-            if not input_alg.has(curr + 2):
+            if not input_alg.has(curr + 1):
                 raise ParseError(curr, "Unexpected end of input")
             jump_id = input_alg[curr + 1].index
             if jump_id not in jump_to:
                 raise ParseError(curr + 1, "Do not know where to jump")
-            if len(input_alg) < jump_to[jump_id] + 1:
+            if not input_alg.has(jump_to[jump_id]):
                 raise ParseError(jump_to[jump_id] - 1, "Do not know where to jump")
-            block.true_block = parse(jump_to[jump_id])
-            block.false_block = parse(curr + 2)
+            block.true_block = parse(jump_to[jump_id], curr)
+            block.false_block = parse(curr + 2, curr)
         elif isinstance(curr_action, input.Control):
             block = chart.Block(block_id, controls=[curr_action.index])
             blocks[curr] = block
             block_id += 1
-            if not input_alg.has(curr + 1):
-                raise ParseError(curr, "Unexpected end of input")
-            block.next_block = parse(curr + 1)
+            block.next_block = parse(curr + 1, curr)
         elif isinstance(curr_action, input.ControlBlock):
             controls = [control.index for control in curr_action.controls]
             block = chart.Block(block_id, controls=controls)
             blocks[curr] = block
             block_id += 1
-            if not input_alg.has(curr + 1):
-                raise ParseError(curr, "Unexpected end of input")
-            block.next_block = parse(curr + 1)
+            block.next_block = parse(curr + 1, curr)
         elif isinstance(curr_action, input.JumpFrom):
-            if curr_action.index not in jump_to:
-                raise ParseError(curr_action.index, "Do not know where to jump")
-            return parse(jump_to[curr_action.index])
+            if curr not in jump_to:
+                raise ParseError(curr, "Do not know where to jump")
+            return parse(jump_to[curr], curr)
         elif isinstance(curr_action, input.JumpTo):
-            if not input_alg.has(curr + 1):
-                raise ParseError(curr, "Unexpected end of input")
-            return parse(curr + 1)
+            return parse(curr + 1, curr)
 
         if not block:
             raise ValueError("invalid input action:", curr_action)
         return block
 
-    return parse(0)
+    return parse(0, 0)
 
 
 def chart_to_tables(chart_alg: chart.Block) -> dict:
