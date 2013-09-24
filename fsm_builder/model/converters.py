@@ -65,9 +65,9 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
             block_id += 1
             block.next_block = parse(curr + 1, curr)
         elif isinstance(curr_action, input.JumpFrom):
-            if curr not in jump_to:
+            if curr_action.index not in jump_to:
                 raise ParseError(curr, "Do not know where to jump")
-            return parse(jump_to[curr], curr)
+            return parse(jump_to[curr_action.index], curr)
         elif isinstance(curr_action, input.JumpTo):
             return parse(curr + 1, curr)
 
@@ -75,7 +75,18 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
             raise ValueError("invalid input action:", curr_action)
         return block
 
-    return parse(0, 0)
+    chart_alg = parse(0, 0)
+
+    # Check lonely blocks
+    crtls = [
+        idx for idx, ctrl in enumerate(input_alg)
+        if isinstance(ctrl, (input.Control, input.ControlBlock))
+    ]
+    lonely = next((ctrl for ctrl in crtls if ctrl not in blocks), None)
+    if lonely is not None:
+        raise ParseError(lonely, "Lonely controls")
+
+    return chart_alg
 
 
 def chart_to_tables(chart_alg: chart.Block) -> dict:
