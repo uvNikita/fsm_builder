@@ -83,6 +83,16 @@ def dict_to_str(dct):
     return res
 
 
+def list_to_str(lst):
+    res = '    '
+    res += ' '.join(map(str, range(len(lst))))
+    res += '\n'
+    for idx, row in enumerate(lst):
+        row = ' '.join(map(str, row))
+        res += '{idx}: {row}\n'.format(idx=idx, row=row)
+    return res
+
+
 def analize(widget):
     statusbar = builder.get_object('statusbar')
     try:
@@ -98,7 +108,7 @@ def analize(widget):
 
     def_table, con_table = chart_to_tables(chart)
     con_table_buffer = builder.get_object('con_table_buffer')
-    con_table_buffer.set_text(dict_to_str(con_table))
+    con_table_buffer.set_text(list_to_str(con_table))
 
     def_table_buffer = builder.get_object('def_table_buffer')
     def_table_buffer.set_text(dict_to_str(def_table))
