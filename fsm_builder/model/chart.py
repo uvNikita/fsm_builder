@@ -44,14 +44,12 @@ def get_blocks(chart):
 
 
 def get_paths(chart):
-    blocks = {}
     paths = []
-    loops = []
+    loop_paths = []
 
     def parse(block, path):
         if block in path:
-            loops.append(path)
-            paths.append(path)
+            loop_paths.append(path + [block])
             return
         else:
             path += [block]
@@ -65,4 +63,8 @@ def get_paths(chart):
             parse(block.false_block, path[:])
 
     parse(chart, [])
+
+    loops = []
+    for loop in loop_paths:
+        loops.append(loop[loop.index(loop[-1]):])
     return paths, loops

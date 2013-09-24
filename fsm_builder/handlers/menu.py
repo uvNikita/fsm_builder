@@ -93,7 +93,15 @@ def list_to_str(lst):
     return res
 
 
-def analize(widget):
+def paths_to_str(paths):
+    res = ''
+    for path in paths:
+        res += ' -> '.join(map(str, path))
+        res += '\n'
+    return res
+
+
+def analyze(widget):
     statusbar = builder.get_object('statusbar')
     try:
         chart = input_to_chart(input_alg)
@@ -114,8 +122,10 @@ def analize(widget):
     def_table_buffer.set_text(dict_to_str(def_table))
 
     paths, loops = get_paths(chart)
-    print(paths)
-    print(loops)
+    paths_buffer = builder.get_object('paths_buffer')
+    paths_buffer.set_text(paths_to_str(paths))
+    loops_buffer = builder.get_object('loops_buffer')
+    loops_buffer.set_text(paths_to_str(loops))
 
 
 menu_handlers = {
@@ -124,5 +134,5 @@ menu_handlers = {
     'menu_open': open_file,
     'menu_new': new,
     'menu_about': about,
-    'menu_analize': analize,
+    'menu_analyze': analyze,
 }
