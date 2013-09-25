@@ -19,6 +19,13 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
         if isinstance(action, input.JumpTo):
             jump_to[action.index] = loc + 1
 
+    # General validation
+    if not isinstance(input_alg[0], input.Begin):
+        raise ParseError(0, "First block must be Begin")
+
+    if not any(isinstance(act, input.End) for act in input_alg):
+        raise ParseError(len(input_alg) - 1, "There is no End block in algorithm")
+
     blocks = {}
     block_id = 0
 
@@ -80,7 +87,7 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
     # Check lonely blocks
     crtls = [
         idx for idx, ctrl in enumerate(input_alg)
-        if isinstance(ctrl, (input.Control, input.ControlBlock))
+        if isinstance(ctrl, (input.Control, input.ControlBlock, input.Begin, input.End))
     ]
     lonely = next((ctrl for ctrl in crtls if ctrl not in blocks), None)
     if lonely is not None:
