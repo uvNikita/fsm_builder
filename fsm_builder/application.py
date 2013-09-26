@@ -25,18 +25,18 @@ files = {
 
 def draw_chart(chart):
     blocks = get_blocks(chart)
-    G = pydot.Dot('alg_chart', graph_type='digraph', rankdir='TB', size=100)
+    graph = pydot.Dot('alg_chart', graph_type='digraph', rankdir='TB', size=100)
     for block in blocks.values():
         if isinstance(block, Block):
-            G.add_node(pydot.Node(str(block), shape='box'))
+            graph.add_node(pydot.Node(str(block), shape='box'))
         elif isinstance(block, Condition):
-            G.add_node(pydot.Node(str(block), shape='diamond'))
+            graph.add_node(pydot.Node(str(block), shape='diamond'))
 
     for block in blocks.values():
         if isinstance(block, Block) and block.next_block:
-            G.add_edge(pydot.Edge(str(block), str(block.next_block)))
+            graph.add_edge(pydot.Edge(str(block), str(block.next_block)))
         elif isinstance(block, Condition):
-            G.add_edge(pydot.Edge(str(block), str(block.true_block), label='True'))
-            G.add_edge(pydot.Edge(str(block), str(block.false_block), label='False'))
-    G.write_png(files['chart_file'])
+            graph.add_edge(pydot.Edge(str(block), str(block.true_block), label='True'))
+            graph.add_edge(pydot.Edge(str(block), str(block.false_block), label='False'))
+    graph.write_png(files['chart_file'])
 

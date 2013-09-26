@@ -1,6 +1,5 @@
-from collections import defaultdict
-import fsm_builder.model.chart as chart
-import fsm_builder.model.input as input
+from . import chart
+from . import input
 
 
 class ParseError(Exception):
