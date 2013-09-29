@@ -61,7 +61,7 @@ def open_file(widget):
         with open(path, 'rb') as f:
             loaded_alg = pickle.load(f)
             files['data_file'] = path
-        input_alg.alg = loaded_alg
+        input_alg.load_alg(loaded_alg)
         input_alg.draw()
     dialog.destroy()
 

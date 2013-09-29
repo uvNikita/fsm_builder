@@ -331,7 +331,7 @@
                         <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="del_last" swapped="no"/>
+                        <signal name="activate" handler="delete" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -472,6 +472,46 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkSeparatorToolItem" id="separator">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="left">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Move cursor left</property>
+                    <property name="label" translatable="yes">←</property>
+                    <property name="use_underline">True</property>
+                    <accelerator key="Left" signal="clicked" modifiers="GDK_SHIFT_MASK"/>
+                    <signal name="clicked" handler="move_left" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolButton" id="right">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Move cursor right</property>
+                    <property name="label" translatable="yes">→</property>
+                    <property name="use_underline">True</property>
+                    <accelerator key="Right" signal="clicked" modifiers="GDK_SHIFT_MASK"/>
+                    <signal name="clicked" handler="move_right" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="homogeneous">True</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkToolButton" id="delete">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -479,7 +519,7 @@
                     <property name="label" translatable="yes">del</property>
                     <property name="use_underline">True</property>
                     <accelerator key="BackSpace" signal="clicked" modifiers="GDK_SHIFT_MASK"/>
-                    <signal name="clicked" handler="del_last" swapped="no"/>
+                    <signal name="clicked" handler="delete" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -637,6 +677,7 @@
                           <object class="GtkTextView" id="paths_view">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="editable">False</property>
                             <property name="buffer">paths_buffer</property>
                           </object>
                           <packing>
@@ -661,6 +702,7 @@
                           <object class="GtkTextView" id="loops_view">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="editable">False</property>
                             <property name="buffer">loops_buffer</property>
                           </object>
                           <packing>

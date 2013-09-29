@@ -52,12 +52,14 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
             block_id += 1
             if not input_alg.has(curr + 1):
                 raise ParseError(curr, "Unexpected end of input")
-            jump_id = input_alg[curr + 1].index
-            if jump_id not in jump_to:
+            jump = input_alg[curr + 1]
+            if not isinstance(jump, input.JumpFrom):
+                raise ParseError(curr + 1, "After condition must be jump")
+            if jump.index not in jump_to:
                 raise ParseError(curr + 1, "Do not know where to jump")
-            if not input_alg.has(jump_to[jump_id]):
-                raise ParseError(jump_to[jump_id] - 1, "Do not know where to jump")
-            block.true_block = parse(jump_to[jump_id], curr)
+            if not input_alg.has(jump_to[jump.index]):
+                raise ParseError(jump_to[jump.index] - 1, "Do not know where to jump")
+            block.true_block = parse(jump_to[jump.index], curr)
             block.false_block = parse(curr + 2, curr)
         elif isinstance(curr_action, input.Control):
             block = chart.Block(block_id, controls=[curr_action.index])

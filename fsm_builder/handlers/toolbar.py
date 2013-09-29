@@ -28,7 +28,7 @@ def with_indexchooser(handler):
 
 @with_indexchooser
 def add_cond(widget, index):
-    input_alg.append(Condition(index))
+    input_alg.insert(Condition(index))
     input_alg.draw()
 
 
@@ -39,9 +39,9 @@ def add_control(widget):
             ids = control_input.get_text().split(' ')
             ids = list(map(int, ids))
             if len(ids) == 1:
-                input_alg.append(Control(ids[0]))
+                input_alg.insert(Control(ids[0]))
             else:
-                input_alg.append(ControlBlock(ids))
+                input_alg.insert(ControlBlock(ids))
     except ValueError as e:
         print(e)
     finally:
@@ -52,23 +52,33 @@ def add_control(widget):
 
 @with_indexchooser
 def add_jump_from(widget, index):
-    input_alg.append(JumpFrom(index))
+    input_alg.insert(JumpFrom(index))
     input_alg.draw()
 
 
 @with_indexchooser
 def add_jump_to(widget, index):
-    input_alg.append(JumpTo(index))
+    input_alg.insert(JumpTo(index))
     input_alg.draw()
 
 
 def add_end(widget):
-    input_alg.append(End())
+    input_alg.insert(End())
     input_alg.draw()
 
 
-def del_last(widget):
-    input_alg.pop()
+def delete(widget):
+    input_alg.delete()
+    input_alg.draw()
+
+
+def move_left(widget):
+    input_alg.move_left()
+    input_alg.draw()
+
+
+def move_right(widget):
+    input_alg.move_right()
     input_alg.draw()
 
 
@@ -78,5 +88,7 @@ toolbar_handlers = {
     'add_jump_from': add_jump_from,
     'add_jump_to': add_jump_to,
     'add_end': add_end,
-    'del_last': del_last,
+    'move_left': move_left,
+    'move_right': move_right,
+    'delete': delete,
 }
