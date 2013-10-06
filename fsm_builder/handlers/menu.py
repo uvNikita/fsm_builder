@@ -4,6 +4,11 @@ from gi.repository import Gtk
 from ..application import builder, input_alg, draw_chart, files, draw_graph
 from ..model.chart import get_paths
 from ..model.converters import input_to_chart, chart_to_tables, ParseError, chart_to_graph
+from .util import get_handler_constructor
+
+
+menu_handlers = {}
+handler = get_handler_constructor(menu_handlers)
 
 
 def add_filters(dialog):
@@ -18,6 +23,7 @@ def add_filters(dialog):
     dialog.add_filter(filter_any)
 
 
+@handler('menu_save_as')
 def save_as(widget):
     parent = builder.get_object('window')
     dialog = Gtk.FileChooserDialog(
@@ -38,6 +44,7 @@ def save_as(widget):
     dialog.destroy()
 
 
+@handler('menu_save')
 def save(widget):
     print(files['data_file'])
     if files['data_file'] is None:
@@ -47,6 +54,7 @@ def save(widget):
             pickle.dump(input_alg.alg, f)
 
 
+@handler('menu_open')
 def open_file(widget):
     parent = builder.get_object('window')
     dialog = Gtk.FileChooserDialog(
@@ -66,11 +74,13 @@ def open_file(widget):
     dialog.destroy()
 
 
+@handler('menu_new')
 def new(widget):
     input_alg.new()
     input_alg.draw()
 
 
+@handler('menu_about')
 def about(aboutdialog):
     aboutdialog.run()
     aboutdialog.hide()
@@ -101,6 +111,7 @@ def paths_to_str(paths):
     return res
 
 
+@handler('menu_analyze')
 def analyze(widget):
     statusbar = builder.get_object('statusbar')
     try:
@@ -134,13 +145,3 @@ def analyze(widget):
     paths_buffer.set_text(paths_to_str(paths))
     loops_buffer = builder.get_object('loops_buffer')
     loops_buffer.set_text(paths_to_str(loops))
-
-
-menu_handlers = {
-    'menu_save_as': save_as,
-    'menu_save': save,
-    'menu_open': open_file,
-    'menu_new': new,
-    'menu_about': about,
-    'menu_analyze': analyze,
-}
