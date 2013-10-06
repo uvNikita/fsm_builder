@@ -1,9 +1,9 @@
 import pickle
 from gi.repository import Gtk
 
-from ..application import builder, input_alg, draw_chart, files
+from ..application import builder, input_alg, draw_chart, files, draw_graph
 from ..model.chart import get_paths
-from ..model.converters import input_to_chart, chart_to_tables, ParseError
+from ..model.converters import input_to_chart, chart_to_tables, ParseError, chart_to_graph
 
 
 def add_filters(dialog):
@@ -110,9 +110,17 @@ def analyze(widget):
         statusbar.push(1, str(e))
         return
     statusbar.remove_all(1)
-    draw_chart(chart)
+
+    graph = chart_to_graph(chart)
+    nodes, conn = graph
+
+    draw_chart(chart, nodes)
     chart_view = builder.get_object('chart')
     chart_view.set_from_file(files['chart_file'])
+
+    draw_graph(graph)
+    graph_view = builder.get_object('graph')
+    graph_view.set_from_file(files['graph_file'])
 
     def_table, con_table = chart_to_tables(chart)
     con_table_buffer = builder.get_object('con_table_buffer')

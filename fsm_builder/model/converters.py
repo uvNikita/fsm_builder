@@ -1,5 +1,6 @@
 from . import chart
 from . import input
+from . import graph
 
 
 class ParseError(Exception):
@@ -24,6 +25,9 @@ def input_to_chart(input_alg: input.InputAlg) -> chart.Block:
 
     if not any(isinstance(act, input.End) for act in input_alg):
         raise ParseError(len(input_alg) - 1, "There is no End block in algorithm")
+
+    if len(input_alg) == 2:
+        raise ParseError(0, "Algorithm has only Begin and End block")
 
     blocks = {}
     block_id = 0
@@ -113,3 +117,66 @@ def chart_to_tables(chart_alg: chart.Block) -> dict:
             con_table[idx][block.true_block.index] = 1
             con_table[idx][block.false_block.index] = 2
     return def_table, con_table
+
+
+def chart_to_graph(chart_alg: chart.Block) -> tuple:
+    nodes = {}
+    node_idx = 0
+
+    def create_nodes(block, was_ctrl):
+        nonlocal node_idx
+        if block.index in nodes:
+            return
+        if was_ctrl:
+            # End block case
+            if isinstance(block, chart.Block) and not block.next_block:
+                nodes[block.index] = nodes[chart_alg.next_block.index]
+            else:
+                nodes[block.index] = graph.Node(node_idx)
+                node_idx += 1
+        if isinstance(block, chart.Block):
+            if block.next_block:
+                create_nodes(block.next_block, True)
+        elif isinstance(block, chart.Condition):
+            create_nodes(block.true_block, False)
+            create_nodes(block.false_block, False)
+
+    create_nodes(chart_alg, False)
+
+    conns = []
+    passed = []
+
+    def create_conns(block, prev_node, cond, ctrls):
+        nonlocal conns, passed
+        new_cond = cond
+        new_ctrls = ctrls
+        new_node = prev_node
+        if block.index in nodes:
+            node = nodes[block.index]
+            if prev_node:
+                conns.append(graph.Connection(ctrls,
+                                              frm=prev_node, to=node,
+                                              cond=cond))
+                new_cond = []
+                new_ctrls = []
+            new_node = node
+            #if prev_node and prev_node.idx == 1:
+            #    import ipdb; ipdb.set_trace()
+
+        if block in passed:
+            return
+        else:
+            passed.append(block)
+
+        if isinstance(block, chart.Block):
+            if block.next_block:
+                create_conns(block.next_block, new_node, new_cond, new_ctrls + block.controls)
+        elif isinstance(block, chart.Condition):
+            new_x = graph.Condition(block.cond, True)
+            create_conns(block.true_block, new_node, new_cond + [new_x], new_ctrls)
+            new_x = graph.Condition(block.cond, False)
+            create_conns(block.false_block, new_node, new_cond + [new_x], new_ctrls)
+
+    create_conns(chart_alg, None, [], [])
+
+    return nodes, conns
