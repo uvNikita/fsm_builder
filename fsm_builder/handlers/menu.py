@@ -1,7 +1,9 @@
 import pickle
+from functools import wraps
+
 from gi.repository import Gtk
 
-from ..application import builder, input_alg, draw_chart, files, draw_graph
+from ..application import builder, input_alg, draw_chart, files, fsm_graph
 from ..model.chart import get_paths
 from ..model.converters import input_to_chart, chart_to_tables, ParseError, chart_to_graph
 from .util import get_handler_constructor
@@ -11,42 +13,63 @@ menu_handlers = {}
 handler = get_handler_constructor(menu_handlers)
 
 
-def add_filters(dialog):
-    filter_text = Gtk.FileFilter()
-    filter_text.set_name('FSM Builder files')
-    filter_text.add_mime_type('application/octet-stream')
-    dialog.add_filter(filter_text)
+def with_file_dialog(action):
 
-    filter_any = Gtk.FileFilter()
-    filter_any.set_name('Any files')
-    filter_any.add_pattern('*')
-    dialog.add_filter(filter_any)
+    def add_filters(dialog):
+        filter_fsm = Gtk.FileFilter()
+        filter_fsm.set_name('FSM Builder data file')
+        filter_fsm.add_mime_type('application/octet-stream')
+        dialog.add_filter(filter_fsm)
+
+        filter_graph = Gtk.FileFilter()
+        filter_graph.set_name('FSM Builder graph file')
+        filter_graph.add_mime_type('text/plain')
+        dialog.add_filter(filter_graph)
+
+        filter_any = Gtk.FileFilter()
+        filter_any.set_name('Any files')
+        filter_any.add_pattern('*')
+        dialog.add_filter(filter_any)
+
+    def decorator(func):
+        @wraps(func)
+        def wraper(*args, **kwargs):
+            parent = builder.get_object('window')
+            if action == 'save':
+                dialog = Gtk.FileChooserDialog(
+                    'Please choose a file to save', parent, Gtk.FileChooserAction.SAVE,
+                    (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                     Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
+            else:
+                dialog = Gtk.FileChooserDialog(
+                    'Please choose a file to open', parent, Gtk.FileChooserAction.OPEN,
+                    (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                     Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+            add_filters(dialog)
+
+            response = dialog.run()
+            if response == Gtk.ResponseType.OK:
+                path = dialog.get_filename()
+                func(path)
+            dialog.destroy()
+        return wraper
+    return decorator
+
+
 
 
 @handler('menu_save_as')
-def save_as(widget):
-    parent = builder.get_object('window')
-    dialog = Gtk.FileChooserDialog(
-        'Please choose a file to save', parent, Gtk.FileChooserAction.SAVE,
-        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-         Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
-
-    add_filters(dialog)
-
-    response = dialog.run()
-    if response == Gtk.ResponseType.OK:
-        path = dialog.get_filename()
-        if not path.endswith('.fsmd'):
-            path += '.fsmd'
-        with open(path, 'wb') as f:
-            pickle.dump(input_alg.alg, f)
-            files['data_file'] = path
-    dialog.destroy()
+@with_file_dialog('save')
+def save_as(path):
+    if not path.endswith('.fsmd'):
+        path += '.fsmd'
+    with open(path, 'wb') as f:
+        pickle.dump(input_alg.alg, f)
+        files['data_file'] = path
 
 
 @handler('menu_save')
 def save(widget):
-    print(files['data_file'])
     if files['data_file'] is None:
         return save_as(widget)
     else:
@@ -55,23 +78,13 @@ def save(widget):
 
 
 @handler('menu_open')
-def open_file(widget):
-    parent = builder.get_object('window')
-    dialog = Gtk.FileChooserDialog(
-        'Please choose a file to save', parent, Gtk.FileChooserAction.OPEN,
-        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-         Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
-    add_filters(dialog)
-
-    response = dialog.run()
-    if response == Gtk.ResponseType.OK:
-        path = dialog.get_filename()
-        with open(path, 'rb') as f:
-            loaded_alg = pickle.load(f)
-            files['data_file'] = path
-        input_alg.load_alg(loaded_alg)
-        input_alg.draw()
-    dialog.destroy()
+@with_file_dialog('open')
+def open_file(path):
+    with open(path, 'rb') as f:
+        loaded_alg = pickle.load(f)
+        files['data_file'] = path
+    input_alg.load_alg(loaded_alg)
+    input_alg.draw()
 
 
 @handler('menu_new')
@@ -123,13 +136,15 @@ def analyze(widget):
     statusbar.remove_all(1)
 
     graph = chart_to_graph(chart)
-    nodes, conn = graph
+    nodes, conns = graph
 
     draw_chart(chart, nodes)
     chart_view = builder.get_object('chart')
     chart_view.set_from_file(files['chart_file'])
 
-    draw_graph(graph)
+    fsm_graph.fill(nodes.values(), conns)
+    fsm_graph.draw()
+
     graph_view = builder.get_object('graph')
     graph_view.set_from_file(files['graph_file'])
 
@@ -145,3 +160,21 @@ def analyze(widget):
     paths_buffer.set_text(paths_to_str(paths))
     loops_buffer = builder.get_object('loops_buffer')
     loops_buffer.set_text(paths_to_str(loops))
+
+
+@handler('menu_export_graph')
+@with_file_dialog('save')
+def export_graph(path):
+    if not path.endswith('.fsmg'):
+        path += '.fsmg'
+    with open(path, 'w') as f:
+        fsm_graph.dump(f)
+
+
+@handler('menu_import_graph')
+@with_file_dialog('open')
+def import_graph(path):
+    with open(path) as f:
+        fsm_graph.load(f)
+    fsm_graph.draw()
+

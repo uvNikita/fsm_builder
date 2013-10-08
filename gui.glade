@@ -294,6 +294,26 @@
                       </object>
                     </child>
                     <child>
+                      <object class="GtkMenuItem" id="file_export_graph">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Export graph into file</property>
+                        <property name="label" translatable="yes">Export graph</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menu_export_graph" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="file_import_graph">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Import graph from file</property>
+                        <property name="label" translatable="yes">Import graph</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menu_import_graph" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkSeparatorMenuItem" id="separatormenuitem1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
