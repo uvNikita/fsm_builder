@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.0 on Sun Oct 27 00:39:17 2013 -->
+<!-- Generated with glade 3.16.0 on Sun Oct 27 00:55:46 2013 -->
 <interface>
   <!-- interface-requires gtk+ 3.6 -->
   <object class="GtkAboutDialog" id="aboutdialog">
@@ -587,9 +587,22 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkImage" id="chart">
+                      <object class="GtkScrolledWindow" id="chart_window">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can_focus">True</property>
+                        <property name="shadow_type">in</property>
+                        <child>
+                          <object class="GtkViewport" id="chart_viewport">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkImage" id="chart">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
                       </object>
                       <packing>
                         <property name="position">1</property>

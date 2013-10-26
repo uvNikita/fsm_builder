@@ -31,7 +31,7 @@ fsm_graph = MealyGraph(graph_holder, files['graph_file'])
 
 def draw_chart(chart, nodes):
     blocks = get_blocks(chart)
-    graph = pydot.Dot('alg_chart', graph_type='digraph', rankdir='TB', size=100)
+    graph = pydot.Dot('alg_chart')
     for block in blocks.values():
         if isinstance(block, Block):
             graph.add_node(pydot.Node(str(block), shape='box'))

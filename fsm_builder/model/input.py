@@ -93,7 +93,7 @@ class InputAlg(object):
             action_str = str(action)
             color = None
             if idx == self.curr_pos:
-                color = 'blue'
+                color = 'grey'
             elif idx in errors:
                 color = 'red'
             if color:

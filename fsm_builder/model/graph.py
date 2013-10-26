@@ -101,7 +101,7 @@ class MealyGraph(object):
         return json.dump(graph_dict, fp)
 
     def draw(self):
-        graph = pydot.Dot('alg_graph', graph_type='digraph', rankdir='TB', size=100)
+        graph = pydot.Dot('alg_graph')
         for node in self.nodes:
             if node.fake:
                 graph.add_node(pydot.Node(str(node), xlabel=node.code, style='dashed'))
