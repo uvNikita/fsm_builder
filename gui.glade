@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.0 on Sun Oct 27 00:55:46 2013 -->
+<!-- Generated with glade 3.16.0 on Sun Oct 27 01:37:23 2013 -->
 <interface>
   <!-- interface-requires gtk+ 3.6 -->
   <object class="GtkAboutDialog" id="aboutdialog">
@@ -12,6 +12,7 @@
     <property name="website">https://github.com/uvNikita/fsm_builder</property>
     <property name="website_label" translatable="yes">Project on GitHub</property>
     <property name="authors">Nikita Uvarov</property>
+    <property name="logo_icon_name"/>
     <property name="license_type">mit-x11</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="aboutdialog-vbox">

@@ -68,11 +68,13 @@ class MealyGraph(object):
     def fill(self, nodes, connections):
         self.nodes = list(nodes)
         self.connections = list(connections)
-        self.put_codes()
 
     def load(self, fp):
         graph_dict = json.load(fp)
-        nodes = {node_idx: Node(node_idx) for node_idx in graph_dict['nodes']}
+        nodes = {
+            node_idx: Node(node_idx, code, fake)
+            for node_idx, code, fake in graph_dict['nodes']
+        }
         conns = []
         for conn_dict in graph_dict['connections']:
             ctrls = conn_dict['ctrls']
@@ -87,8 +89,8 @@ class MealyGraph(object):
 
     def dump(self, fp):
         graph_dict = {}
-        node_idxs = [node.idx for node in self.nodes]
-        graph_dict['nodes'] = node_idxs
+        nodes_data = [(node.idx, node.code, node.fake) for node in self.nodes]
+        graph_dict['nodes'] = nodes_data
 
         conns = [
             {'from': conn.frm.idx,

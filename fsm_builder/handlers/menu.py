@@ -144,6 +144,7 @@ def analyze(widget):
 
     nodes = list(set(nodes.values()))
     fsm_graph.fill(nodes, conns)
+    fsm_graph.put_codes()
     fsm_graph.draw()
 
     graph_view = builder.get_object('graph')
