@@ -160,8 +160,6 @@ def chart_to_graph(chart_alg: chart.Block) -> tuple:
                 new_cond = []
                 new_ctrls = []
             new_node = node
-            #if prev_node and prev_node.idx == 1:
-            #    import ipdb; ipdb.set_trace()
 
         if block in passed:
             return
@@ -180,3 +178,32 @@ def chart_to_graph(chart_alg: chart.Block) -> tuple:
     create_conns(chart_alg, None, [], [])
 
     return nodes, conns
+
+
+JK_TABLE = {
+    (0, 0): (0, None),
+    (0, 1): (1, None),
+    (1, 0): (None, 1),
+    (1, 1): (None, 0)
+}
+
+
+def graph_to_trans_table(input_graph):
+    nodes, conns = input_graph
+    table = []
+    all_ctrls = set(ctrl for c in conns for ctrl in c.ctrls)
+    all_conds = set(cond.idx for conn in conns for cond in conn.cond)
+    for conn in conns:
+        row = {}
+        row['from_name'] = str(conn.frm)
+        row['from_code'] = conn.frm.code
+        row['to_name'] = str(conn.to)
+        row['to_code'] = conn.to.code
+        cond = {cond.idx: cond.value for cond in conn.cond}
+        row['cond'] = {cond_id: cond.get(cond_id) for cond_id in all_conds}
+        row['ctrls'] = {ctrl: ctrl in conn.ctrls for ctrl in all_ctrls}
+        row['trig'] = []
+        for fc, tc in zip(conn.frm.code, conn.to.code):
+            row['trig'].append(JK_TABLE[int(fc), int(tc)])
+        table.append(row)
+    return table

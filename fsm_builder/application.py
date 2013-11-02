@@ -8,6 +8,7 @@ from gi.repository import Gtk
 from .model.input import InputAlg
 from .model.chart import Block, Condition, get_blocks
 from .model.graph import MealyGraph
+from .model.trans_table import TransTable
 
 builder = Gtk.Builder()
 module = sys.modules.get('fsm_builder').__file__
@@ -27,6 +28,10 @@ input_alg = InputAlg(alg_holder)
 
 graph_holder = builder.get_object('graph')
 fsm_graph = MealyGraph(graph_holder, files['graph_file'])
+
+trans_holder = builder.get_object('trans_view')
+triggers_holder = builder.get_object('triggers_view')
+trans_table = TransTable(trans_holder, triggers_holder)
 
 
 def draw_chart(chart, nodes):

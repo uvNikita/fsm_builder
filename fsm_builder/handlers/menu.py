@@ -3,9 +3,10 @@ from functools import wraps
 
 from gi.repository import Gtk
 
-from ..application import builder, input_alg, draw_chart, files, fsm_graph
+from ..application import builder, input_alg, draw_chart, files, fsm_graph, trans_table
 from ..model.chart import get_paths
-from ..model.converters import input_to_chart, chart_to_tables, ParseError, chart_to_graph
+from ..model.converters import input_to_chart, chart_to_tables, ParseError
+from ..model.converters import chart_to_graph, graph_to_trans_table
 from .util import get_handler_constructor
 
 
@@ -91,6 +92,7 @@ def open_file(path):
 def new(widget):
     input_alg.new()
     input_alg.draw()
+    trans_table.draw()
 
 
 @handler('menu_about')
@@ -142,13 +144,6 @@ def analyze(widget):
     chart_view = builder.get_object('chart')
     chart_view.set_from_file(files['chart_file'])
 
-    fsm_graph.fill(nodes.values(), conns)
-    fsm_graph.put_codes()
-    fsm_graph.draw()
-
-    graph_view = builder.get_object('graph')
-    graph_view.set_from_file(files['graph_file'])
-
     def_table, con_table = chart_to_tables(chart)
     con_table_buffer = builder.get_object('con_table_buffer')
     con_table_buffer.set_text(list_to_str(con_table))
@@ -161,6 +156,14 @@ def analyze(widget):
     paths_buffer.set_text(paths_to_str(paths))
     loops_buffer = builder.get_object('loops_buffer')
     loops_buffer.set_text(paths_to_str(loops))
+
+    fsm_graph.fill(nodes.values(), conns)
+    fsm_graph.put_codes()
+    fsm_graph.draw()
+
+    table = graph_to_trans_table((fsm_graph.nodes, fsm_graph.connections))
+    trans_table.fill(table)
+    trans_table.draw()
 
 
 @handler('menu_export_graph')
