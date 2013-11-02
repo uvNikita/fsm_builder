@@ -17,6 +17,9 @@ class Node(object):
     def __str__(self):
         return "Z{}".format(self.idx)
 
+    def __lt__(self, other):
+        return self.idx < other.idx
+
 
 class Condition(object):
     def __init__(self, idx, value):
@@ -66,7 +69,7 @@ class MealyGraph(object):
         self.connections = []
 
     def fill(self, nodes, connections):
-        self.nodes = list(nodes)
+        self.nodes = list(sorted(set(nodes)))
         self.connections = list(connections)
 
     def load(self, fp):
@@ -119,7 +122,7 @@ class MealyGraph(object):
     def put_codes(self):
         def gen_codes(ln):
             bin_codes = map(lambda c: bin(c)[2:], range(2 ** ln))
-            return list(map(lambda c: ('0' * ln + c)[-ln:], bin_codes))
+            return tuple(map(lambda c: ('0' * ln + c)[-ln:], bin_codes))
 
         def diff(code1, code2):
             diffs = 0
@@ -134,48 +137,64 @@ class MealyGraph(object):
             one_diff_codes = filter(lambda c: diff(c, from_code) == 1, free_codes)
             paths = []
             for code in one_diff_codes:
-                path = find_path(code, to_code, free_codes - {code})
+                path = find_path(code, to_code, [c for c in free_codes if c != code])
                 if path is not None:
                     paths.append((code,) + path)
             return min(paths, key=len) if paths else None
 
+        def get_power(node):
+            from_power = len(list(c for c in self.connections if c.frm is node and c.to is not node))
+            to_power = len(list(c for c in self.connections if c.to is node and c.frm is not node))
+            return from_power + to_power
+
         def try_put_codes(ln):
             def get_code(node, codes, nodes, connections):
                 idx_gen = count(max([n.idx for n in nodes]) + 1)
-                free_codes = all_codes - set(codes.values())
-                from_nodes = set([c.to for c in filter(lambda c: c.frm is node, connections)])
-                to_nodes = set([c.frm for c in filter(lambda c: c.to is node, connections)])
+                #free_codes = [c for c in all_codes if c not in codes.values()]
+                free_codes = tuple(sorted(set(all_codes) - set(codes.values())))
+                from_nodes = tuple(c.to for c in filter(lambda c: c.frm is node and c.to is not node, connections))
+                to_nodes = tuple(c.frm for c in filter(lambda c: c.to is node and c.frm is not node, connections))
                 bcodes_from = {
                     bnode: codes[bnode]
-                    for bnode in from_nodes
+                    for bnode in sorted(set(from_nodes))
                     if bnode in codes
                 }
                 bcodes_to = {
                     bnode: codes[bnode]
-                    for bnode in to_nodes
+                    for bnode in sorted(set(to_nodes))
                     if bnode in codes
                 }
+
+                # Optimisation. Try to find exactly suit code
                 for free_code in free_codes:
-                    new_free_codes = free_codes
+                    bcodes = list(bcodes_from.values()) + list(bcodes_to.values())
+                    if all(diff(free_code, bcode) == 1 for bcode in bcodes):
+                        codes[node] = free_code
+                        return codes, nodes, connections
+
+                for free_code in free_codes:
+                    new_free_codes = free_codes[:]
                     new_nodes = nodes
                     new_connections = connections
                     new_codes = codes.copy()
                     valid = True
                     for bnode, bcode in bcodes_from.items():
-                        path = find_path(free_code, bcode, new_free_codes - {free_code})
+                        path = find_path(free_code, bcode, tuple(c for c in new_free_codes if c != free_code))
                         # Can't create path even with fake nodes, breaking
                         if path is None:
                             valid = False
                             break
+
+                        # Don't need any fake nodes
+                        if not path:
+                            continue
+
                         fake_nodes = []
                         for code in path:
                             fake_node = Node(next(idx_gen), fake=True)
                             fake_nodes.append(fake_node)
                             new_codes[fake_node] = code
                         fake_nodes = tuple(fake_nodes)
-
-                        if not fake_nodes:
-                            continue
 
                         new_nodes += fake_nodes
                         old_conn = next(conn for conn in new_connections if conn.frm is node and conn.to is bnode)
@@ -189,25 +208,27 @@ class MealyGraph(object):
 
                         for prev_node, curr_node in zip(fake_nodes, fake_nodes[1:]):
                             new_connections += (Connection([], prev_node, curr_node),)
-                        new_free_codes = new_free_codes - set(path)
+                        new_free_codes = tuple(sorted(set(new_free_codes) - set(path)))
 
                     if not valid:
                         continue
                     for bnode, bcode in bcodes_to.items():
-                        path = find_path(bcode, free_code, new_free_codes - {free_code})
+                        path = find_path(bcode, free_code, tuple(c for c in new_free_codes if c != free_code))
                         # Can't create path even with fake nodes, breaking
                         if path is None:
                             valid = False
                             break
+
+                        # Don't need any fake nodes
+                        if not path:
+                            continue
+
                         fake_nodes = []
                         for code in path:
                             fake_node = Node(next(idx_gen), fake=True)
                             fake_nodes.append(fake_node)
                             new_codes[fake_node] = code
                         fake_nodes = tuple(fake_nodes)
-
-                        if not fake_nodes:
-                            continue
 
                         new_nodes += fake_nodes
                         old_conn = next(conn for conn in new_connections if conn.frm is bnode and conn.to is node)
@@ -221,14 +242,14 @@ class MealyGraph(object):
 
                         for prev_node, curr_node in zip(fake_nodes, fake_nodes[1:]):
                             new_connections += (Connection([], prev_node, curr_node),)
-                        new_free_codes = new_free_codes - set(path)
+                        new_free_codes = tuple(sorted(set(new_free_codes) - set(path)))
 
                     if valid:
                         new_codes[node] = free_code
                         return new_codes, new_nodes, new_connections
                 raise CodesError("No suitable code found")
 
-            all_codes = set(gen_codes(ln))
+            all_codes = gen_codes(ln)
             connections = tuple(self.connections)
             nodes = tuple(self.nodes)
             codes = {}
@@ -238,7 +259,11 @@ class MealyGraph(object):
                     codes, nodes, connections = get_code(node, codes, nodes, connections)
             return list(nodes), list(connections), codes
 
-        ln = ceil(log2(len(self.nodes)))
+        ln_by_nodes = ceil(log2(len(self.nodes)))
+        powers = map(get_power, self.nodes)
+        ln_by_power = ceil(log2(max(powers)))
+        ln = max(ln_by_nodes, ln_by_power)
+
         while True:
             try:
                 nodes, connnections, codes = try_put_codes(ln)

@@ -142,8 +142,7 @@ def analyze(widget):
     chart_view = builder.get_object('chart')
     chart_view.set_from_file(files['chart_file'])
 
-    nodes = list(set(nodes.values()))
-    fsm_graph.fill(nodes, conns)
+    fsm_graph.fill(nodes.values(), conns)
     fsm_graph.put_codes()
     fsm_graph.draw()
 
