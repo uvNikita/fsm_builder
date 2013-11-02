@@ -260,8 +260,8 @@ class MealyGraph(object):
             return list(nodes), list(connections), codes
 
         ln_by_nodes = ceil(log2(len(self.nodes)))
-        powers = map(get_power, self.nodes)
-        ln_by_power = ceil(log2(max(powers)))
+        max_power = max(map(get_power, self.nodes))
+        ln_by_power = ceil(log2(max_power)) if max_power != 0 else 0
         ln = max(ln_by_nodes, ln_by_power)
 
         while True:
