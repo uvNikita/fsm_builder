@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.0 on Sat Nov  2 19:47:27 2013 -->
+<!-- Generated with glade 3.16.0 on Sun Nov  3 23:25:00 2013 -->
 <interface>
   <!-- interface-requires gtk+ 3.10 -->
   <object class="GtkAboutDialog" id="aboutdialog">
@@ -297,6 +297,12 @@
                       </object>
                     </child>
                     <child>
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkMenuItem" id="file_export_graph">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
@@ -314,6 +320,32 @@
                         <property name="label" translatable="yes">Import graph</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="menu_import_graph" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="file_export_table">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Export table to file</property>
+                        <property name="label" translatable="yes">Export table</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menu_export_table" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="file_import_table">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Import table from file</property>
+                        <property name="label" translatable="yes">Import table</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menu_import_table" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -369,14 +401,6 @@
                     </child>
                   </object>
                 </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkMenuItem" id="menuitem3">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">_View</property>
-                <property name="use_underline">True</property>
               </object>
             </child>
             <child>

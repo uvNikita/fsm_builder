@@ -182,3 +182,19 @@ def import_graph(path):
         fsm_graph.load(f)
     fsm_graph.draw()
 
+
+@handler('menu_export_table')
+@with_file_dialog('save')
+def export_table(path):
+    if not path.endswith('.fsmt'):
+        path += '.fsmt'
+    with open(path, 'w') as f:
+        trans_table.dump(f)
+
+
+@handler('menu_import_table')
+@with_file_dialog('open')
+def import_table(path):
+    with open(path) as f:
+        trans_table.load(f)
+    trans_table.draw()

@@ -1,3 +1,4 @@
+import json
 from operator import itemgetter
 
 from gi.repository import Gtk
@@ -26,6 +27,12 @@ class TransTable(object):
     def clear(self):
         for column in self.table_view.get_columns():
             self.table_view.remove_column(column)
+
+    def dump(self, fp):
+        return json.dump(self.table, fp)
+
+    def load(self, fp):
+        return self.fill(json.load(fp))
 
     def _add_column(self, label, map_idx):
         column = Gtk.TreeViewColumn(label, Gtk.CellRendererText(), text=map_idx)
