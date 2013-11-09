@@ -40,9 +40,9 @@ class TransTable(object):
 
     def draw(self):
         self.draw_table()
-        self.draw_triggers()
+        self.draw_funcs()
 
-    def draw_triggers(self):
+    def draw_funcs(self):
         def get_func(rows):
             ors = []
             for row in rows:
@@ -60,6 +60,7 @@ class TransTable(object):
                 ors.append(or_)
             func = ' ∨ '.join(ors)
             return func
+
         funcs = []
         for trig_id in range(len(self.table[0]['from_code'])):
             j_ones = []
@@ -76,6 +77,13 @@ class TransTable(object):
             k_func += underscripted(get_func(k_ones)) or '0'
 
             funcs.append(j_func + '\n' + k_func + '\n')
+
+        for ctrl_id in self.table[0]['ctrls']:
+            ctrl_ones = [row for row in self.table if row['ctrls'][ctrl_id]]
+            ctrl_func = underscripted('Y{} = '.format(ctrl_id))
+            ctrl_func += underscripted(get_func(ctrl_ones)) or '0'
+            funcs.append(ctrl_func)
+
         buffer = self.triggers_view.get_buffer()
         buffer.set_text('\n'.join(funcs))
 
