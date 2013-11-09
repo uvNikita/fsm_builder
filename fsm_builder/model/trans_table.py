@@ -6,13 +6,42 @@ from gi.repository import Gtk
 from ..util import underscripted
 
 
-def _value_to_str(value):
-    if value is None:
-        return '-'
-    elif value:
-        return '1'
-    else:
-        return '0'
+class Implicant(object):
+    def __init__(self, values):
+        self.values = values
+
+    def __repr__(self):
+        pass
+
+    def __len__(self):
+        return len(self.values)
+
+    def __iter__(self):
+        return iter(self.values)
+
+
+class Function(object):
+    def __init__(self, name, args, impls):
+        assert all(len(args) == len(impl) for impl in impls), "Arguments and implicants" \
+                                                              "must be the same length"
+
+        self.args = args
+        self.impls = impls
+        self.name = name
+
+    def __repr__(self):
+        impls_str = []
+        for impl in self.impls:
+            impl_str = ''
+            for name, value in zip(self.args, impl):
+                if value is None:
+                    continue
+                elif not value:
+                    impl_str += '!'
+                impl_str += name
+            impls_str.append(impl_str)
+        func_str = ' ∨ '.join(impls_str) or '0'
+        return "{f} = {value}".format(f=self.name, value=func_str)
 
 
 class TransTable(object):
@@ -43,23 +72,24 @@ class TransTable(object):
         self.draw_funcs()
 
     def draw_funcs(self):
-        def get_func(rows):
-            ors = []
+        def get_func(name, rows):
+            args = []
+            for q_id in range(len(rows[0]['from_code'])):
+                args.append(underscripted('Q{}'.format(q_id)))
+            for cond_id, value in sorted(rows[0]['cond'].items()):
+                args.append(underscripted('X{}'.format(cond_id)))
+            impls = []
             for row in rows:
-                or_ = ''
-                for qid, qval in enumerate(row['from_code']):
-                    if qval == '0':
-                        or_ += '!'
-                    or_ += 'Q{}'.format(qid)
-                for cond_id, cond_val in row['cond'].items():
+                impl_vals = list(map(int, row['from_code'][:]))
+                for cond_id, cond_val in sorted(row['cond'].items()):
                     if cond_val is None:
-                        continue
-                    elif not cond_val:
-                        or_ += '!'
-                    or_ += 'X{}'.format(cond_id)
-                ors.append(or_)
-            func = ' ∨ '.join(ors)
-            return func
+                        impl_vals.append(cond_val)
+                    elif cond_val:
+                        impl_vals.append(1)
+                    else:
+                        impl_vals.append(0)
+                impls.append(Implicant(impl_vals))
+            return Function(name, args, impls)
 
         funcs = []
         for trig_id in range(len(self.table[0]['from_code'])):
@@ -70,24 +100,32 @@ class TransTable(object):
                     j_ones.append(row)
                 if row['trig'][trig_id][1]:
                     k_ones.append(row)
-            j_func = underscripted('J{} = '.format(trig_id))
-            j_func += underscripted(get_func(j_ones)) or '0'
+            j_name = underscripted('J{} = '.format(trig_id))
+            j_func = get_func(j_name, j_ones)
+            funcs.append(j_func)
 
-            k_func = underscripted('K{} = '.format(trig_id))
-            k_func += underscripted(get_func(k_ones)) or '0'
-
-            funcs.append(j_func + '\n' + k_func + '\n')
+            k_name = underscripted('K{} = '.format(trig_id))
+            k_func = get_func(k_name, k_ones)
+            funcs.append(k_func)
 
         for ctrl_id in self.table[0]['ctrls']:
             ctrl_ones = [row for row in self.table if row['ctrls'][ctrl_id]]
-            ctrl_func = underscripted('Y{} = '.format(ctrl_id))
-            ctrl_func += underscripted(get_func(ctrl_ones)) or '0'
+            ctrl_name = underscripted('Y{} = '.format(ctrl_id))
+            ctrl_func = get_func(ctrl_name, ctrl_ones)
             funcs.append(ctrl_func)
 
         buffer = self.triggers_view.get_buffer()
-        buffer.set_text('\n'.join(funcs))
+        buffer.set_text('\n'.join(map(str, funcs)))
 
     def draw_table(self):
+        def _value_to_str(value):
+            if value is None:
+                return '-'
+            elif value:
+                return '1'
+            else:
+                return '0'
+
         self.clear()
         row = self.table[0]
 
