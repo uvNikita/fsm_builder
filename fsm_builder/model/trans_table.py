@@ -71,7 +71,6 @@ class Function(object):
     def minimize(self):
         def get_groups():
             def get_new_group(impls):
-                print(impls)
                 group = []
                 for idx, impl1 in enumerate(impls):
                     for impl2 in impls[idx + 1:]:
@@ -90,12 +89,9 @@ class Function(object):
             return tuple(groups)
 
         def reduced(groups):
-            for idx, group in enumerate(groups):
-                print(idx, group)
             groups = groups[::-1]
 
             def inner(groups):
-                print(groups)
                 if not groups:
                     return ()
                 base = groups[0][0]
@@ -116,9 +112,10 @@ class Function(object):
 
 
 class TransTable(object):
-    def __init__(self, table_holder, triggers_holder):
+    def __init__(self, table_holder, funcs_holder, min_funcs_holder):
         self.table_view = table_holder
-        self.triggers_view = triggers_holder
+        self.funcs_view = funcs_holder
+        self.min_funcs_view = min_funcs_holder
         self.table = []
 
     def fill(self, table):
@@ -163,6 +160,7 @@ class TransTable(object):
             return Function(name, args, impls)
 
         funcs = []
+        min_funcs = []
         for trig_id in range(len(self.table[0]['from_code'])):
             j_ones = []
             k_ones = []
@@ -173,20 +171,28 @@ class TransTable(object):
                     k_ones.append(row)
             j_name = underscripted('J{} = '.format(trig_id))
             j_func = get_func(j_name, j_ones)
+            j_min = j_func.minimize()
             funcs.append(j_func)
+            min_funcs.append(j_min)
 
             k_name = underscripted('K{} = '.format(trig_id))
             k_func = get_func(k_name, k_ones)
+            k_min = k_func.minimize()
             funcs.append(k_func)
+            min_funcs.append(k_min)
 
         for ctrl_id in self.table[0]['ctrls']:
             ctrl_ones = [row for row in self.table if row['ctrls'][ctrl_id]]
             ctrl_name = underscripted('Y{} = '.format(ctrl_id))
             ctrl_func = get_func(ctrl_name, ctrl_ones)
+            min_ctrl_func = ctrl_func.minimize()
             funcs.append(ctrl_func)
+            min_funcs.append(min_ctrl_func)
 
-        buffer = self.triggers_view.get_buffer()
-        buffer.set_text('\n'.join(map(str, funcs)))
+        funcs_buffer = self.funcs_view.get_buffer()
+        funcs_buffer.set_text('\n'.join(map(str, funcs)))
+        min_funcs_buffer = self.min_funcs_view.get_buffer()
+        min_funcs_buffer.set_text('\n'.join(map(str, min_funcs)))
 
     def draw_table(self):
         def _value_to_str(value):
