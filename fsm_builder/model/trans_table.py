@@ -8,16 +8,41 @@ from ..util import underscripted
 
 class Implicant(object):
     def __init__(self, values):
-        self.values = values
+        self.values = tuple(values)
 
     def __repr__(self):
-        pass
+        return "Implicant({})".format(self.values)
 
     def __len__(self):
         return len(self.values)
 
     def __iter__(self):
         return iter(self.values)
+
+    def can_combine(self, other):
+        was_diff = False
+        for sv, ov in zip(self, other):
+            if sv != ov:
+                if not was_diff:
+                    was_diff = True
+                else:
+                    return False
+        return was_diff
+
+    def is_include(self, other):
+        for sv, ov in zip(self, other):
+            if sv != ov and sv is not None:
+                return False
+        return True
+
+    def combine(self, other):
+        new_values = []
+        for sv, ov in zip(self, other):
+            if sv == ov:
+                new_values.append(sv)
+            else:
+                new_values.append(None)
+        return Implicant(new_values)
 
 
 class Function(object):
@@ -42,6 +67,52 @@ class Function(object):
             impls_str.append(impl_str)
         func_str = ' ∨ '.join(impls_str) or '0'
         return "{f} = {value}".format(f=self.name, value=func_str)
+
+    def minimize(self):
+        def get_groups():
+            def get_new_group(impls):
+                print(impls)
+                group = []
+                for idx, impl1 in enumerate(impls):
+                    for impl2 in impls[idx + 1:]:
+                        if impl1.can_combine(impl2):
+                            group.append(impl1.combine(impl2))
+                return tuple(group)
+
+            group = tuple(self.impls)
+            groups = [group]
+            while True:
+                group = get_new_group(group)
+                if group:
+                    groups.append(group)
+                else:
+                    break
+            return tuple(groups)
+
+        def reduced(groups):
+            for idx, group in enumerate(groups):
+                print(idx, group)
+            groups = groups[::-1]
+
+            def inner(groups):
+                print(groups)
+                if not groups:
+                    return ()
+                base = groups[0][0]
+                groups = (tuple(impl for impl in group[1:] if not base.is_include(impl)) for group in groups)
+                return (base,) + inner(tuple(filter(None, groups)))
+            return inner(groups)
+
+        def minimized(impls, reduced_impls):
+            res = set()
+            for impl in impls:
+                cover = tuple(rimpl for rimpl in reduced_impls if rimpl.is_include(impl))
+                res.add(cover[0])
+            return tuple(res)
+
+        reduced_impls = reduced(get_groups())
+        min_impls = minimized(self.impls, reduced_impls)
+        return Function(self.name, self.args, min_impls)
 
 
 class TransTable(object):
