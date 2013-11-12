@@ -78,6 +78,9 @@ class Function(object):
                             group.append(impl1.combine(impl2))
                 return tuple(group)
 
+            if not self.impls:
+                return []
+
             group = tuple(self.impls)
             groups = [group]
             while True:
@@ -86,18 +89,18 @@ class Function(object):
                     groups.append(group)
                 else:
                     break
-            return tuple(groups)
+            return tuple(groups[::-1])
 
         def reduced(groups):
-            groups = groups[::-1]
-
-            def inner(groups):
-                if not groups:
-                    return ()
-                base = groups[0][0]
-                groups = (tuple(impl for impl in group[1:] if not base.is_include(impl)) for group in groups)
-                return (base,) + inner(tuple(filter(None, groups)))
-            return inner(groups)
+            if not groups:
+                return ()
+            base = groups[0][0]
+            groups = (groups[0][1:],) + groups[1:]
+            groups = (
+                tuple(filter(lambda impl: not base.is_include(impl), group))
+                for group in groups
+            )
+            return (base,) + reduced(tuple(filter(None, groups)))
 
         def minimized(impls, reduced_impls):
             res = set()
@@ -141,6 +144,8 @@ class TransTable(object):
 
     def draw_funcs(self):
         def get_func(name, rows):
+            if not rows:
+                return Function(name, [], [])
             args = []
             for q_id in range(len(rows[0]['from_code'])):
                 args.append(underscripted('Q{}'.format(q_id)))
@@ -169,13 +174,13 @@ class TransTable(object):
                     j_ones.append(row)
                 if row['trig'][trig_id][1]:
                     k_ones.append(row)
-            j_name = underscripted('J{} = '.format(trig_id))
+            j_name = underscripted('J{}'.format(trig_id))
             j_func = get_func(j_name, j_ones)
             j_min = j_func.minimize()
             funcs.append(j_func)
             min_funcs.append(j_min)
 
-            k_name = underscripted('K{} = '.format(trig_id))
+            k_name = underscripted('K{}'.format(trig_id))
             k_func = get_func(k_name, k_ones)
             k_min = k_func.minimize()
             funcs.append(k_func)
@@ -183,7 +188,7 @@ class TransTable(object):
 
         for ctrl_id in self.table[0]['ctrls']:
             ctrl_ones = [row for row in self.table if row['ctrls'][ctrl_id]]
-            ctrl_name = underscripted('Y{} = '.format(ctrl_id))
+            ctrl_name = underscripted('Y{}'.format(ctrl_id))
             ctrl_func = get_func(ctrl_name, ctrl_ones)
             min_ctrl_func = ctrl_func.minimize()
             funcs.append(ctrl_func)
