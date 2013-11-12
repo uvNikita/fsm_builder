@@ -65,7 +65,7 @@ class Function(object):
                     impl_str += '!'
                 impl_str += name
             impls_str.append(impl_str)
-        func_str = ' ∨ '.join(impls_str) or '0'
+        func_str = ' ∨ '.join(impls_str) or '1'
         return "{f} = {value}".format(f=self.name, value=func_str)
 
     def minimize(self):
@@ -105,8 +105,9 @@ class Function(object):
         def minimized(impls, reduced_impls):
             res = set()
             for impl in impls:
-                cover = tuple(rimpl for rimpl in reduced_impls if rimpl.is_include(impl))
-                res.add(cover[0])
+                if any(rimpl.is_include(impl) for rimpl in res):
+                    continue
+                res.add(next(rimpl for rimpl in reduced_impls if rimpl.is_include(impl)))
             return tuple(res)
 
         reduced_impls = reduced(get_groups())
