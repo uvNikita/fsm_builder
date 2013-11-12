@@ -1,6 +1,7 @@
 from . import chart
 from . import input
 from . import graph
+from . import function
 
 
 class ParseError(Exception):
@@ -207,3 +208,50 @@ def graph_to_trans_table(input_graph):
             row['trig'].append(JK_TABLE[int(fc), int(tc)])
         table.append(row)
     return table
+
+
+def trans_table_to_funcs(table):
+    def get_func(name, rows):
+        if not rows:
+            return function.Function(name, [], [])
+        args = []
+        for q_id in range(len(rows[0]['from_code'])):
+            args.append('Q{}'.format(q_id))
+        for cond_id, value in sorted(rows[0]['cond'].items()):
+            args.append('X{}'.format(cond_id))
+        impls = []
+        for row in rows:
+            impl_vals = list(map(int, row['from_code'][:]))
+            for cond_id, cond_val in sorted(row['cond'].items()):
+                if cond_val is None:
+                    impl_vals.append(cond_val)
+                elif cond_val:
+                    impl_vals.append(1)
+                else:
+                    impl_vals.append(0)
+            impls.append(function.Implicant(impl_vals))
+        return function.Function(name, args, impls)
+
+    funcs = []
+    for trig_id in range(len(table[0]['from_code'])):
+        j_ones = []
+        k_ones = []
+        for row in table:
+            if row['trig'][trig_id][0]:
+                j_ones.append(row)
+            if row['trig'][trig_id][1]:
+                k_ones.append(row)
+        j_name = 'J{}'.format(trig_id)
+        j_func = get_func(j_name, j_ones)
+        funcs.append(j_func)
+
+        k_name = 'K{}'.format(trig_id)
+        k_func = get_func(k_name, k_ones)
+        funcs.append(k_func)
+
+    for ctrl_id in table[0]['ctrls']:
+        ctrl_ones = [row for row in table if row['ctrls'][ctrl_id]]
+        ctrl_name = 'Y{}'.format(ctrl_id)
+        ctrl_func = get_func(ctrl_name, ctrl_ones)
+        funcs.append(ctrl_func)
+    return tuple(funcs)

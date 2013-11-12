@@ -32,7 +32,7 @@ fsm_graph = MealyGraph(graph_holder, files['graph_file'])
 trans_holder = builder.get_object('trans_view')
 funcs_holder = builder.get_object('funcs_view')
 min_funcs_holder = builder.get_object('min_funcs_view')
-trans_table = TransTable(trans_holder, funcs_holder, min_funcs_holder)
+trans_table = TransTable(trans_holder)
 
 
 def draw_chart(chart, nodes):

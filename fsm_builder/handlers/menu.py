@@ -5,7 +5,7 @@ from gi.repository import Gtk
 
 from ..application import builder, input_alg, draw_chart, files, fsm_graph, trans_table
 from ..model.chart import get_paths
-from ..model.converters import input_to_chart, chart_to_tables, ParseError
+from ..model.converters import input_to_chart, chart_to_tables, ParseError, trans_table_to_funcs
 from ..model.converters import chart_to_graph, graph_to_trans_table
 from .util import get_handler_constructor
 
@@ -164,6 +164,14 @@ def analyze(widget):
     table = graph_to_trans_table((fsm_graph.nodes, fsm_graph.connections))
     trans_table.fill(table)
     trans_table.draw()
+
+    funcs = trans_table_to_funcs(table)
+    funcs_buffer = builder.get_object('funcs_buffer')
+    funcs_buffer.set_text('\n'.join(map(str, funcs)))
+
+    min_funcs = tuple(map(lambda f: f.minimize(), funcs))
+    min_funcs_buffer = builder.get_object('min_funcs_buffer')
+    min_funcs_buffer.set_text('\n'.join(map(str, min_funcs)))
 
 
 @handler('menu_export_graph')
