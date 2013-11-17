@@ -110,3 +110,14 @@ class Function(object):
         return Function(self.name, self.args, min_impls)
 
 
+class Functions(object):
+    def __init__(self, holder):
+        self.holder = holder
+        self.funcs = []
+
+    def fill(self, funcs):
+        self.funcs = funcs
+
+    def draw(self):
+        buffer = self.holder.get_buffer()
+        buffer.set_text('\n'.join(map(str, self.funcs)))

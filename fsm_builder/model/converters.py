@@ -1,3 +1,6 @@
+from operator import attrgetter
+from functools import partial
+
 from . import chart
 from . import input
 from . import graph
@@ -255,3 +258,74 @@ def trans_table_to_funcs(table):
         ctrl_func = get_func(ctrl_name, ctrl_ones)
         funcs.append(ctrl_func)
     return tuple(funcs)
+
+
+def func_to_vhdl(func):
+    def arg_to_signal(arg):
+        arg_name, value = arg
+        if value is None:
+            return None
+        elif value == 1:
+            return arg_name
+        else:
+            return "not({})".format(arg_name)
+
+    def impl_to_signals(impl):
+        return tuple(filter(None, map(arg_to_signal, zip(func.args, impl.values))))
+
+    def cascade(signals, vfunc, zero_val):
+        signals = tuple(signals)
+        if len(signals) == 0:
+            return zero_val
+        elif len(signals) == 1:
+            return signals[0]
+        split_point = len(signals) // 2
+        part1, part2 = signals[:split_point], signals[split_point:]
+        return '({} {} {})'.format(
+            cascade(part1, vfunc, zero_val),
+            vfunc,
+            cascade(part2, vfunc, zero_val))
+    cascade_and = partial(cascade, vfunc='and', zero_val='1')
+    cascade_or = partial(cascade, vfunc='or', zero_val='0')
+    func_val = cascade_or(map(cascade_and, map(impl_to_signals, func.impls)))
+    return '{func_name} <= {func_val};'.format(func_name=func.name, func_val=func_val)
+
+
+def funcs_to_vhdl(name, funcs):
+    vhdl_code_template = """
+library IEEE;
+use IEEE.std_logic_1164.all;
+
+entity {name} is
+port(
+{in_signals}
+
+{out_signals}
+);
+end {name};
+
+architecture {name} of {name} is
+begin
+{funcs_code}
+end {name};
+"""
+    in_signal_template = '{} : in STD_LOGIC;'
+    out_signal_template = '{} : out STD_LOGIC;'
+
+    in_signals = set()
+    for func in funcs:
+        in_signals = in_signals.union(func.args)
+    in_signals_code = '\n'.join(map(in_signal_template.format, in_signals))
+
+    out_signals = set(map(attrgetter('name'), funcs))
+    out_signals_code = '\n'.join(map(out_signal_template.format, out_signals))
+    out_signals_code = out_signals_code[:-1]  # remove last ';'
+
+    funcs_code = '\n'.join(map(func_to_vhdl, funcs))
+    return vhdl_code_template.format(
+        name=name,
+        in_signals=in_signals_code,
+        out_signals=out_signals_code,
+        funcs_code=funcs_code,
+    )
+

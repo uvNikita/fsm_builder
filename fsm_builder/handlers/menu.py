@@ -1,13 +1,16 @@
+import os
 import pickle
 from functools import wraps
 
 from gi.repository import Gtk
 
-from ..application import builder, input_alg, draw_chart, files, fsm_graph, trans_table
-from ..model.chart import get_paths
-from ..model.converters import input_to_chart, chart_to_tables, ParseError, trans_table_to_funcs
-from ..model.converters import chart_to_graph, graph_to_trans_table
 from .util import get_handler_constructor
+from ..application import builder, input_alg, draw_chart, files, fsm_graph
+from ..application import trans_table, functions, min_functions
+from ..model.chart import get_paths
+from ..model.converters import input_to_chart, chart_to_tables, ParseError
+from ..model.converters import trans_table_to_funcs, funcs_to_vhdl
+from ..model.converters import chart_to_graph, graph_to_trans_table
 
 
 menu_handlers = {}
@@ -166,12 +169,12 @@ def analyze(widget):
     trans_table.draw()
 
     funcs = trans_table_to_funcs(table)
-    funcs_buffer = builder.get_object('funcs_buffer')
-    funcs_buffer.set_text('\n'.join(map(str, funcs)))
+    functions.fill(funcs)
+    functions.draw()
 
     min_funcs = tuple(map(lambda f: f.minimize(), funcs))
-    min_funcs_buffer = builder.get_object('min_funcs_buffer')
-    min_funcs_buffer.set_text('\n'.join(map(str, min_funcs)))
+    min_functions.fill(min_funcs)
+    min_functions.draw()
 
 
 @handler('menu_export_graph')
@@ -206,3 +209,18 @@ def import_table(path):
     with open(path) as f:
         trans_table.load(f)
     trans_table.draw()
+
+
+@handler('menu_export_vhdl')
+@with_file_dialog('save')
+def export_table(path):
+    statusbar = builder.get_object('statusbar')
+    if not min_functions.funcs:
+        statusbar.push(1, "Press Analyze button first")
+
+    if not path.endswith('.vhdl'):
+        path += '.vhdl'
+    name = os.path.basename(path).rstrip('.vhdl')
+    vhdl_code = funcs_to_vhdl(name, min_functions.funcs)
+    with open(path, 'w') as f:
+        f.write(vhdl_code)

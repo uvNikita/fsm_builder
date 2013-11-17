@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.16.0 on Sun Nov 10 17:15:58 2013 -->
+<!-- Generated with glade 3.16.0 on Sun Nov 17 15:10:04 2013 -->
 <interface>
   <!-- interface-requires gtk+ 3.10 -->
   <object class="GtkAboutDialog" id="aboutdialog">
@@ -351,6 +351,22 @@
                     </child>
                     <child>
                       <object class="GtkSeparatorMenuItem" id="separatormenuitem1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="file_export_vhdl">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Generate VHDL code</property>
+                        <property name="label" translatable="yes">Export VHDL</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="menu_export_vhdl" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem4">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                       </object>
