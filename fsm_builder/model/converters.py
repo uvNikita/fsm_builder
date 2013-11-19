@@ -298,6 +298,8 @@ use IEEE.std_logic_1164.all;
 
 entity {name} is
 port(
+clk :  IN  STD_LOGIC;
+init :  IN  STD_LOGIC;
 {in_signals}
 
 {out_signals}
@@ -305,27 +307,61 @@ port(
 end {name};
 
 architecture {name} of {name} is
+{local_signals}
 begin
 {funcs_code}
+{triggers}
 end {name};
 """
+    trigger_template = """
+PROCESS(clk)
+VARIABLE tr_Q{0} : STD_LOGIC;
+BEGIN
+tr_Q{0} := Q{0};
+IF (RISING_EDGE(clk)) THEN
+        tr_Q{0} := (NOT(tr_Q{0}) AND (J{0})) OR (NOT(K{0}) AND (tr_Q{0}));
+END IF;
+Q{0} <= init and tr_Q{0};
+END PROCESS;
+"""
+
+    def is_cond(signal):
+        return signal.startswith('X')
+
+    def is_out(signal):
+        return signal.startswith('Y')
+
     in_signal_template = '{} : in STD_LOGIC;'
     out_signal_template = '{} : out STD_LOGIC;'
+    local_signal_template = 'signal {} : STD_LOGIC;'
 
     in_signals = set()
+    q_signals = set()
     for func in funcs:
-        in_signals = in_signals.union(func.args)
+        q_signals = q_signals.union(filter(lambda sig: not(is_cond(sig)), func.args))
+        in_signals = in_signals.union(filter(is_cond, func.args))
+
     in_signals_code = '\n'.join(map(in_signal_template.format, in_signals))
 
-    out_signals = set(map(attrgetter('name'), funcs))
+    triggers_code = '\n'.join(map(trigger_template.format,
+                                  range(len(q_signals))))
+
+    func_names = set(map(attrgetter('name'), funcs))
+    out_signals = set(filter(is_out, func_names))
     out_signals_code = '\n'.join(map(out_signal_template.format, out_signals))
     out_signals_code = out_signals_code[:-1]  # remove last ';'
 
+    local_signals = q_signals.union(func_names - out_signals)
+    local_signals_code = '\n'.join(map(local_signal_template.format, local_signals))
+
     funcs_code = '\n'.join(map(func_to_vhdl, funcs))
+
     return vhdl_code_template.format(
         name=name,
         in_signals=in_signals_code,
         out_signals=out_signals_code,
+        local_signals=local_signals_code,
         funcs_code=funcs_code,
+        triggers=triggers_code,
     )
 
