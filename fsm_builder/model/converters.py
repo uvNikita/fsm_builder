@@ -124,13 +124,16 @@ def chart_to_tables(chart_alg: chart.Block) -> dict:
 
 
 def chart_to_graph(chart_alg: chart.Block) -> tuple:
+    passed_blocks = set()
     nodes = {}
     node_idx = 0
 
     def create_nodes(block, was_ctrl):
         nonlocal node_idx
-        if block.index in nodes:
+        if block in passed_blocks:
             return
+        else:
+            passed_blocks.add(block)
         if was_ctrl:
             # End block case
             if isinstance(block, chart.Block) and not block.next_block:
